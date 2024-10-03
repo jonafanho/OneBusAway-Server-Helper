@@ -28,6 +28,12 @@ public final class ArrivalAndDeparture implements Comparable<ArrivalAndDeparture
 	private int numberOfStopsAway;
 	private final TripStatus tripStatus = new TripStatus();
 
+	void replaceRouteShortName(String[] routeShortNameReplacements) {
+		for (final String routeShortNameReplacement : routeShortNameReplacements) {
+			routeShortName = routeShortName.replaceAll(routeShortNameReplacement, "");
+		}
+	}
+
 	private long getDepartureTime() {
 		return predictedDepartureTime == 0 ? scheduledDepartureTime : predictedDepartureTime;
 	}
@@ -35,11 +41,5 @@ public final class ArrivalAndDeparture implements Comparable<ArrivalAndDeparture
 	@Override
 	public int compareTo(@NonNull ArrivalAndDeparture arrivalAndDeparture) {
 		return Long.compare(getDepartureTime(), arrivalAndDeparture.getDepartureTime());
-	}
-
-	void replaceRouteShortName(String[] routeShortNameReplacements) {
-		for (final String routeShortNameReplacement : routeShortNameReplacements) {
-			routeShortName = routeShortName.replaceAll(routeShortNameReplacement, "");
-		}
 	}
 }

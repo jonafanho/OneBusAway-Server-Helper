@@ -3,6 +3,7 @@ package org.obaserverhelper.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import org.obaserverhelper.entity.AbstractData;
 import org.obaserverhelper.entity.ArrivalsAndDepartures;
+import org.obaserverhelper.entity.GenericData;
 import org.obaserverhelper.entity.Response;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -19,6 +20,12 @@ public final class ForwardingController {
 	private String[] servers;
 	@Value("${keys}")
 	private String[] keys;
+
+	private final VehicleLookup vehicleLookup;
+
+	public ForwardingController(VehicleLookup vehicleLookup) {
+		this.vehicleLookup = vehicleLookup;
+	}
 
 	@GetMapping("/arrivals-and-departures-for-stop/{id}.json")
 	public Response<ArrivalsAndDepartures.ArrivalsAndDeparturesEntry> getArrivalsAndDeparturesForStop(
@@ -51,17 +58,26 @@ public final class ForwardingController {
 			if (response == null) {
 				response = newResponse;
 			}
-			response.merge(newResponse);
+			response.getData().merge(newResponse.getData());
 		}
 
 		if (response != null) {
-			response.getData().getEntry().trim(trackDestinations, skipTerminating, maxCount, routeShortNameReplacements == null ? new String[0] : routeShortNameReplacements.split(","));
+			response.getData().getEntry().trim(vehicleLookup, trackDestinations, skipTerminating, maxCount, routeShortNameReplacements == null ? new String[0] : routeShortNameReplacements.split(","));
 		}
 
 		return response;
 	}
 
-	private <T extends AbstractData> Response<T> get(String requestUri, String queryString, @Nullable Boolean includeReferences, ParameterizedTypeReference<Response<T>> responseType) {
+	@GetMapping("/**")
+	public Response<GenericData> get(
+			HttpServletRequest request,
+			@RequestParam(required = false) @Nullable Boolean includeReferences
+	) {
+		return get(request.getRequestURI(), request.getQueryString(), includeReferences, new ParameterizedTypeReference<>() {
+		});
+	}
+
+	private <T extends AbstractData<U>, U> Response<T> get(String requestUri, String queryString, @Nullable Boolean includeReferences, ParameterizedTypeReference<Response<T>> responseType) {
 		// includeReferences parameter not working for some endpoints
 		final Response<T> response = RestClient.create()
 				.get()

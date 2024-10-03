@@ -6,7 +6,7 @@ import org.springframework.lang.NonNull;
 
 @Getter
 @NoArgsConstructor(force = true)
-public final class Response<T extends AbstractData> {
+public final class Response<T extends AbstractData<?>> {
 
 	private int version;
 	private int code;
@@ -20,10 +20,6 @@ public final class Response<T extends AbstractData> {
 	}
 
 	public void clearReferences() {
-		this.data.references.clear();
-	}
-
-	public void merge(Response<T> response) {
-		data.merge(response.data);
+		this.data.getReferences().clear();
 	}
 }

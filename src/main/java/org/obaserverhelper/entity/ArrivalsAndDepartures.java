@@ -1,6 +1,7 @@
 package org.obaserverhelper.entity;
 
 import lombok.Getter;
+import org.obaserverhelper.controller.VehicleLookup;
 import org.springframework.lang.Nullable;
 
 import java.util.*;
@@ -13,7 +14,7 @@ public final class ArrivalsAndDepartures {
 	private final Set<String> situationIds = new HashSet<>();
 	private String stopId;
 
-	public void trim(@Nullable String trackDestinations, @Nullable Boolean skipTerminating, @Nullable Integer count, @Nullable String[] routeShortNameReplacements) {
+	public void trim(VehicleLookup vehicleLookup, @Nullable String trackDestinations, @Nullable Boolean skipTerminating, @Nullable Integer count, @Nullable String[] routeShortNameReplacements) {
 		final String[] destinationSplit = trackDestinations == null ? null : trackDestinations.toLowerCase(Locale.ROOT).split(",");
 		arrivalsAndDepartures.removeIf(arrivalAndDeparture -> {
 			final boolean destinationMismatch = destinationSplit != null && (arrivalAndDeparture.getTripHeadsign() == null || Arrays.stream(destinationSplit).noneMatch(destination -> arrivalAndDeparture.getTripHeadsign().toLowerCase(Locale.ROOT).contains(destination)));
@@ -30,25 +31,24 @@ public final class ArrivalsAndDepartures {
 		if (routeShortNameReplacements != null) {
 			arrivalsAndDepartures.forEach(arrivalAndDeparture -> arrivalAndDeparture.replaceRouteShortName(routeShortNameReplacements));
 		}
+
+		arrivalsAndDepartures.forEach(arrivalAndDeparture -> arrivalAndDeparture.getTripStatus().setVehicleGroup(vehicleLookup.getVehicleGroup(arrivalAndDeparture.getTripStatus().getVehicleId())));
 	}
 
-	public static final class ArrivalsAndDeparturesEntry extends AbstractEntryData<ArrivalsAndDepartures> {
+	public static final class ArrivalsAndDeparturesEntry extends AbstractData<ArrivalsAndDepartures> {
 
 		public ArrivalsAndDeparturesEntry() {
 			super(new ArrivalsAndDepartures());
 		}
 
-		@Override
-		protected void merge(AbstractData abstractData) {
-			if (abstractData instanceof ArrivalsAndDeparturesEntry) {
-				final List<String> existingTripIds = new ArrayList<>();
-				getEntry().arrivalsAndDepartures.forEach(arrivalAndDeparture -> existingTripIds.add(arrivalAndDeparture.getTripId()));
-				((ArrivalsAndDeparturesEntry) abstractData).getEntry().arrivalsAndDepartures.forEach(arrivalAndDeparture -> {
-					if (!existingTripIds.contains(arrivalAndDeparture.getTripId())) {
-						getEntry().arrivalsAndDepartures.add(arrivalAndDeparture);
-					}
-				});
-			}
+		public void merge(ArrivalsAndDeparturesEntry arrivalsAndDeparturesEntry) {
+			final List<String> existingTripIds = new ArrayList<>();
+			getEntry().arrivalsAndDepartures.forEach(arrivalAndDeparture -> existingTripIds.add(arrivalAndDeparture.getTripId()));
+			arrivalsAndDeparturesEntry.getEntry().arrivalsAndDepartures.forEach(arrivalAndDeparture -> {
+				if (!existingTripIds.contains(arrivalAndDeparture.getTripId())) {
+					getEntry().arrivalsAndDepartures.add(arrivalAndDeparture);
+				}
+			});
 		}
 	}
 }

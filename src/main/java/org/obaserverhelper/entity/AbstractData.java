@@ -1,8 +1,24 @@
 package org.obaserverhelper.entity;
 
-public abstract class AbstractData {
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.springframework.lang.NonNull;
 
-	public final References references = new References();
+import java.util.ArrayList;
+import java.util.List;
 
-	protected abstract void merge(AbstractData abstractData);
+@Getter
+@NoArgsConstructor(force = true)
+public abstract class AbstractData<T> {
+
+	private final References references = new References();
+	@NonNull
+	private final T entry;
+	private final List<T> list = new ArrayList<>();
+	private boolean limitExceeded;
+	private boolean outOfRange;
+
+	protected AbstractData(@NonNull T entry) {
+		this.entry = entry;
+	}
 }
