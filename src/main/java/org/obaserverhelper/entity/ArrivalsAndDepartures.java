@@ -32,7 +32,7 @@ public final class ArrivalsAndDepartures {
 			arrivalsAndDepartures.forEach(arrivalAndDeparture -> arrivalAndDeparture.replaceRouteShortName(routeShortNameReplacements));
 		}
 
-		arrivalsAndDepartures.forEach(arrivalAndDeparture -> arrivalAndDeparture.getTripStatus().setVehicleGroup(vehicleLookup.getVehicleGroup(arrivalAndDeparture.getTripStatus().getVehicleId())));
+		arrivalsAndDepartures.forEach(arrivalAndDeparture -> arrivalAndDeparture.getTripStatus().updateVehicleGroup(vehicleLookup));
 	}
 
 	public static final class ArrivalsAndDeparturesEntry extends AbstractData<ArrivalsAndDepartures> {

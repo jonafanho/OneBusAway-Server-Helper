@@ -1,7 +1,6 @@
 package org.obaserverhelper.entity;
 
 import lombok.Getter;
-import lombok.Setter;
 import org.obaserverhelper.controller.VehicleLookup;
 
 import java.util.HashSet;
@@ -34,6 +33,11 @@ public final class TripStatus {
 	private int scheduleDeviation;
 	private String vehicleId;
 	private final Set<String> situationIds = new HashSet<>();
-	@Setter
 	private VehicleLookup.VehicleGroup vehicleGroup;
+
+	public void updateVehicleGroup(VehicleLookup vehicleLookup) {
+		if (vehicleId != null) {
+			vehicleGroup = vehicleLookup.getVehicleGroup(vehicleId);
+		}
+	}
 }

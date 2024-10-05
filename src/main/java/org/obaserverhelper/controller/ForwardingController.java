@@ -1,10 +1,7 @@
 package org.obaserverhelper.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.obaserverhelper.entity.AbstractData;
-import org.obaserverhelper.entity.ArrivalsAndDepartures;
-import org.obaserverhelper.entity.GenericData;
-import org.obaserverhelper.entity.Response;
+import org.obaserverhelper.entity.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.lang.Nullable;
@@ -65,6 +62,21 @@ public final class ForwardingController {
 			response.getData().getEntry().trim(vehicleLookup, trackDestinations, skipTerminating, maxCount, routeShortNameReplacements == null ? new String[0] : routeShortNameReplacements.split(","));
 		}
 
+		return response;
+	}
+
+	@GetMapping("/trip-details/{id}.json")
+	public Response<TripDetails.TripDetailsEntry> getTripDetails(
+			HttpServletRequest request,
+			@PathVariable String id,
+			@RequestParam(required = false) @Nullable Boolean includeReferences
+	) {
+		final Response<TripDetails.TripDetailsEntry> response = get(request.getRequestURI(), request.getQueryString(), includeReferences, new ParameterizedTypeReference<>() {
+		});
+		final TripStatus tripStatus = response.getData().getEntry().getStatus();
+		if (tripStatus != null) {
+			tripStatus.updateVehicleGroup(vehicleLookup);
+		}
 		return response;
 	}
 
