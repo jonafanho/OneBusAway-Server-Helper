@@ -38,7 +38,9 @@ public abstract class GtfsStaticDataProcessorBase<T, U extends JpaRepository<T, 
 		}
 
 		try {
+			final long startMillis = System.currentTimeMillis();
 			repository.saveAll(dataList);
+			LOGGER.info("Finished save in {} ms [{}]", System.currentTimeMillis() - startMillis, getClass().getSimpleName());
 		} catch (Exception e) {
 			LOGGER.error("", e);
 		}

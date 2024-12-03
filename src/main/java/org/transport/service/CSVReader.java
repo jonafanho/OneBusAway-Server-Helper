@@ -22,6 +22,7 @@ public final class CSVReader {
 
 	public static <T> List<T> read(ZipInputStream zipInputStream, Class<T> dataClass) {
 		final List<T> dataList = Collections.synchronizedList(new ArrayList<>());
+		final long startMillis = System.currentTimeMillis();
 		final ExecutorService executorService = Executors.newCachedThreadPool();
 		final ObjectMapper objectMapper = new ObjectMapper()
 				.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -49,9 +50,9 @@ public final class CSVReader {
 
 			executorService.shutdown();
 			if (executorService.awaitTermination(1, TimeUnit.HOURS)) {
-				LOGGER.info("Read successful [{}]", dataClass.getSimpleName());
+				LOGGER.info("Read successful in {} ms [{}]", System.currentTimeMillis() - startMillis, dataClass.getSimpleName());
 			} else {
-				LOGGER.error("Read failed [{}]", dataClass.getName());
+				LOGGER.error("Read failed in {} ms [{}]", System.currentTimeMillis() - startMillis, dataClass.getName());
 			}
 		} catch (Exception e) {
 			LOGGER.error("", e);
