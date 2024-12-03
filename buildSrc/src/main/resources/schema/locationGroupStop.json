@@ -1,0 +1,15 @@
+[
+	{
+		"name": ""
+	},
+	{
+		"name": "locationGroupId",
+		"reference": "LocationGroup",
+		"default": "new LocationGroup()"
+	},
+	{
+		"name": "stopId",
+		"reference": "Stop",
+		"default": "new Stop()"
+	}
+]

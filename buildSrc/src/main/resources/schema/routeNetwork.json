@@ -1,0 +1,15 @@
+[
+	{
+		"name": ""
+	},
+	{
+		"name": "networkId",
+		"reference": "Network",
+		"default": "new Network()"
+	},
+	{
+		"name": "RouteId",
+		"reference": "Route",
+		"default": "new Route()"
+	}
+]

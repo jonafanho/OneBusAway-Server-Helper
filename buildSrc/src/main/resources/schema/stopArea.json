@@ -1,0 +1,15 @@
+[
+	{
+		"name": ""
+	},
+	{
+		"name": "areaId",
+		"reference": "Area",
+		"default": "new Area()"
+	},
+	{
+		"name": "stopId",
+		"reference": "Stop",
+		"default": "new Stop()"
+	}
+]

@@ -1,0 +1,50 @@
+[
+	{
+		"name": "serviceId"
+	},
+	{
+		"name": "sunday",
+		"enum": "NoYes",
+		"default": "NoYes.NO"
+	},
+	{
+		"name": "monday",
+		"enum": "NoYes",
+		"default": "NoYes.NO"
+	},
+	{
+		"name": "tuesday",
+		"enum": "NoYes",
+		"default": "NoYes.NO"
+	},
+	{
+		"name": "wednesday",
+		"enum": "NoYes",
+		"default": "NoYes.NO"
+	},
+	{
+		"name": "thursday",
+		"enum": "NoYes",
+		"default": "NoYes.NO"
+	},
+	{
+		"name": "friday",
+		"enum": "NoYes",
+		"default": "NoYes.NO"
+	},
+	{
+		"name": "saturday",
+		"enum": "NoYes",
+		"default": "NoYes.NO"
+	},
+	{
+		"name": "startDate",
+		"type": "Date",
+		"default": "Date.create(\"\")"
+	},
+	{
+		"name": "endDate",
+		"type": "Date",
+		"default": "Date.create(\"\")"
+	}
+]

@@ -1,0 +1,36 @@
+[
+	{
+		"name": "agencyId"
+	},
+	{
+		"name": "agencyName",
+		"type": "String",
+		"default": "\"\""
+	},
+	{
+		"name": "agencyUrl",
+		"type": "String",
+		"default": "\"\""
+	},
+	{
+		"name": "agencyTimezone",
+		"type": "java.util.TimeZone",
+		"default": "java.util.TimeZone.getDefault()"
+	},
+	{
+		"name": "agencyLang",
+		"type": "String"
+	},
+	{
+		"name": "agencyPhone",
+		"type": "String"
+	},
+	{
+		"name": "agencyFareUrl",
+		"type": "String"
+	},
+	{
+		"name": "agencyEmail",
+		"type": "String"
+	}
+]

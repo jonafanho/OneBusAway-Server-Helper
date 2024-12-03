@@ -1,0 +1,45 @@
+[
+	{
+		"name": "tripId"
+	},
+	{
+		"name": "routeId",
+		"reference": "Route",
+		"default": "new Route()"
+	},
+	{
+		"name": "serviceId",
+		"reference": "Calendar",
+		"default": "new Calendar()"
+	},
+	{
+		"name": "tripHeadsign",
+		"type": "String"
+	},
+	{
+		"name": "tripShortName",
+		"type": "String"
+	},
+	{
+		"name": "directionId",
+		"enum": "DirectionId"
+	},
+	{
+		"name": "blockId",
+		"type": "String"
+	},
+	{
+		"name": "shapeId",
+		"reference": "Shape"
+	},
+	{
+		"name": "wheelchairAccessible",
+		"enum": "Wheelchair",
+		"default": "Wheelchair.NONE"
+	},
+	{
+		"name": "bikesAllowed",
+		"enum": "Bikes",
+		"default": "Bikes.NONE"
+	}
+]

@@ -1,0 +1,30 @@
+[
+	{
+		"name": ""
+	},
+	{
+		"name": "tripId",
+		"reference": "Trip",
+		"default": "new Trip()"
+	},
+	{
+		"name": "startTime",
+		"type": "Time",
+		"default": "Time.create(\"\")"
+	},
+	{
+		"name": "endTime",
+		"type": "Time",
+		"default": "Time.create(\"\")"
+	},
+	{
+		"name": "headwaySecs",
+		"type": "int",
+		"default": "1"
+	},
+	{
+		"name": "exactTimes",
+		"enum": "ExactTimes",
+		"default": "ExactTimes.FREQUENCY"
+	}
+]

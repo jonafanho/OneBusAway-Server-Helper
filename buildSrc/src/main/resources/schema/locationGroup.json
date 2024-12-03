@@ -1,0 +1,9 @@
+[
+	{
+		"name": "locationGroupId"
+	},
+	{
+		"name": "locationGroupName",
+		"type": "String"
+	}
+]

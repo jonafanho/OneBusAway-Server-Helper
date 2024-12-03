@@ -1,132 +1,141 @@
 package org.transport.service;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.annotation.Nullable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
-import org.transport.dto.AgencyDTO;
-import org.transport.dto.RouteDTO;
-import org.transport.dto.StopDTO;
-import org.transport.entity.Agency;
-import org.transport.entity.Route;
-import org.transport.entity.Stop;
-import org.transport.repository.AgencyRepository;
-import org.transport.repository.RouteRepository;
-import org.transport.repository.StopRepository;
+import org.transport.generated.*;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 @Component
 public final class GtfsStaticProcessor {
 
-	private final List<DataHolder> dataHolderList = new ArrayList<>();
-
-	private final AgencyRepository agencyRepository;
-	private final StopRepository stopRepository;
-	private final RouteRepository routeRepository;
+	private final AgencyProcessor agencyProcessor;
 
 	private static final Logger LOGGER = LogManager.getLogger(GtfsStaticProcessor.class);
+	private final StopProcessor stopProcessor;
+	private final RouteProcessor routeProcessor;
+	private final TripProcessor tripProcessor;
+	private final StopTimeProcessor stopTimeProcessor;
+	private final CalendarProcessor calendarProcessor;
+	private final CalendarDateProcessor calendarDateProcessor;
+	private final AreaProcessor areaProcessor;
+	private final StopAreaProcessor stopAreaProcessor;
+	private final NetworkProcessor networkProcessor;
+	private final RouteNetworkProcessor routeNetworkProcessor;
+	private final ShapeProcessor shapeProcessor;
+	private final FrequencyProcessor frequencyProcessor;
+	private final LevelProcessor levelProcessor;
+	private final LocationGroupProcessor locationGroupProcessor;
+	private final LocationGroupStopProcessor locationGroupStopProcessor;
+	private final BookingRuleProcessor bookingRuleProcessor;
 
-	public GtfsStaticProcessor(AgencyRepository agencyRepository, StopRepository stopRepository, RouteRepository routeRepository) {
-		this.agencyRepository = agencyRepository;
-		this.stopRepository = stopRepository;
-		this.routeRepository = routeRepository;
+	public GtfsStaticProcessor(
+			AgencyProcessor agencyProcessor,
+			StopProcessor stopProcessor, RouteProcessor routeProcessor, TripProcessor tripProcessor, StopTimeProcessor stopTimeProcessor, CalendarProcessor calendarProcessor, CalendarDateProcessor calendarDateProcessor, AreaProcessor areaProcessor, StopAreaProcessor stopAreaProcessor, NetworkProcessor networkProcessor, RouteNetworkProcessor routeNetworkProcessor, ShapeProcessor shapeProcessor, FrequencyProcessor frequencyProcessor, LevelProcessor levelProcessor, LocationGroupProcessor locationGroupProcessor, LocationGroupStopProcessor locationGroupStopProcessor, BookingRuleProcessor bookingRuleProcessor) {
+		this.agencyProcessor = agencyProcessor;
+		this.stopProcessor = stopProcessor;
+		this.routeProcessor = routeProcessor;
+		this.tripProcessor = tripProcessor;
+		this.stopTimeProcessor = stopTimeProcessor;
+		this.calendarProcessor = calendarProcessor;
+		this.calendarDateProcessor = calendarDateProcessor;
+		this.areaProcessor = areaProcessor;
+		this.stopAreaProcessor = stopAreaProcessor;
+		this.networkProcessor = networkProcessor;
+		this.routeNetworkProcessor = routeNetworkProcessor;
+		this.shapeProcessor = shapeProcessor;
+		this.frequencyProcessor = frequencyProcessor;
+		this.levelProcessor = levelProcessor;
+		this.locationGroupProcessor = locationGroupProcessor;
+		this.locationGroupStopProcessor = locationGroupStopProcessor;
+		this.bookingRuleProcessor = bookingRuleProcessor;
 	}
 
 	public void readZip(InputStream inputStream) {
 		try (final InputStream newInputStream = inputStream; final ZipInputStream zipInputStream = new ZipInputStream(newInputStream)) {
-			final DataHolder dataHolder = new DataHolder();
 			ZipEntry zipEntry;
-
 			while ((zipEntry = zipInputStream.getNextEntry()) != null) {
 				final String name = zipEntry.getName();
 				switch (name) {
 					case "agency.txt":
-						dataHolder.agencyList.addAll(CSVReader.read(zipInputStream, AgencyDTO.class));
+						agencyProcessor.initialize(CSVReader.read(zipInputStream, Agency.AgencyDTO.class));
 						break;
 					case "stops.txt":
-						dataHolder.stopsList.addAll(CSVReader.read(zipInputStream, StopDTO.class));
+						stopProcessor.initialize(CSVReader.read(zipInputStream, Stop.StopDTO.class));
 						break;
 					case "routes.txt":
-						dataHolder.routeList.addAll(CSVReader.read(zipInputStream, RouteDTO.class));
+						routeProcessor.initialize(CSVReader.read(zipInputStream, Route.RouteDTO.class));
 						break;
-//					case "trips.txt":
-//						trips.put(name, csvRecords);
-//						break;
-//					case "stop_times.txt":
-//						stopTimes.put(name, csvRecords);
-//						break;
-//					case "calendar.txt":
-//						calendar.put(name, csvRecords);
-//						break;
-//					case "calendar_dates.txt":
-//						calendarDates.put(name, csvRecords);
-//						break;
+					case "trips.txt":
+						tripProcessor.initialize(CSVReader.read(zipInputStream, Trip.TripDTO.class));
+						break;
+					case "stop_times.txt":
+						stopTimeProcessor.initialize(CSVReader.read(zipInputStream, StopTime.StopTimeDTO.class));
+						break;
+					case "calendar.txt":
+						calendarProcessor.initialize(CSVReader.read(zipInputStream, Calendar.CalendarDTO.class));
+						break;
+					case "calendar_dates.txt":
+						calendarDateProcessor.initialize(CSVReader.read(zipInputStream, CalendarDate.CalendarDateDTO.class));
+						break;
+					case "areas.txt":
+						areaProcessor.initialize(CSVReader.read(zipInputStream, Area.AreaDTO.class));
+						break;
+					case "stop_areas.txt":
+						stopAreaProcessor.initialize(CSVReader.read(zipInputStream, StopArea.StopAreaDTO.class));
+						break;
+					case "networks.txt":
+						networkProcessor.initialize(CSVReader.read(zipInputStream, Network.NetworkDTO.class));
+						break;
+					case "route_networks.txt":
+						routeNetworkProcessor.initialize(CSVReader.read(zipInputStream, RouteNetwork.RouteNetworkDTO.class));
+						break;
+					case "shapes.txt":
+						shapeProcessor.initialize(CSVReader.read(zipInputStream, Shape.ShapeDTO.class));
+						break;
+					case "frequencies.txt":
+						frequencyProcessor.initialize(CSVReader.read(zipInputStream, Frequency.FrequencyDTO.class));
+						break;
+					case "levels.txt":
+						levelProcessor.initialize(CSVReader.read(zipInputStream, Level.LevelDTO.class));
+						break;
+					case "location_groups.txt":
+						locationGroupProcessor.initialize(CSVReader.read(zipInputStream, LocationGroup.LocationGroupDTO.class));
+						break;
+					case "location_group_stops.txt":
+						locationGroupStopProcessor.initialize(CSVReader.read(zipInputStream, LocationGroupStop.LocationGroupStopDTO.class));
+						break;
+					case "booking_rules.txt":
+						bookingRuleProcessor.initialize(CSVReader.read(zipInputStream, BookingRule.BookingRuleDTO.class));
+						break;
 				}
 				zipInputStream.closeEntry();
 			}
-
-			dataHolderList.add(dataHolder);
 		} catch (Exception e) {
 			LOGGER.error("", e);
 		}
 	}
 
 	public void process() {
-		for (int i = 0; i < dataHolderList.size(); i++) {
-			try {
-				final DataHolder dataHolder = dataHolderList.get(i);
-
-				for (AgencyDTO agencyDTO : dataHolder.agencyList) {
-					// Append source index to ID
-					agencyDTO.agencyId = formatId(i, agencyDTO.agencyId);
-				}
-
-				// Save agencies to database
-				dataHolder.agencyList.forEach(agencyDTO -> agencyRepository.save(new ObjectMapper().convertValue(agencyDTO, Agency.class)));
-
-				for (StopDTO stopDTO : dataHolder.stopsList) {
-					// Append source index to ID
-					stopDTO.stopId = formatId(i, stopDTO.stopId);
-					// Use agency timezone if none set
-					if (stopDTO.stopTimezone == null) {
-						stopDTO.stopTimezone = dataHolder.agencyList.get(0).agencyTimezone;
-					}
-				}
-
-				// Save stops to database
-				dataHolder.stopsList.forEach(stopDTO -> stopRepository.save(new ObjectMapper().convertValue(stopDTO, Stop.class)));
-
-				for (RouteDTO routeDTO : dataHolder.routeList) {
-					// Append source index to ID
-					routeDTO.routeId = formatId(i, routeDTO.routeId);
-					// Save route to database
-					routeRepository.save(new Route(
-							new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).convertValue(routeDTO, Route.class),
-							agencyRepository.findById(formatId(i, routeDTO.agencyId)).orElse(null)
-					));
-				}
-			} catch (Exception e) {
-				LOGGER.error("", e);
-			}
-		}
-	}
-
-	private static String formatId(int sourceIndex, @Nullable String agencyId) {
-		return StringUtils.hasText(agencyId) ? String.format("%s_%s", sourceIndex + 1, agencyId) : String.valueOf(sourceIndex + 1);
-	}
-
-	private static class DataHolder {
-
-		private final List<AgencyDTO> agencyList = new ArrayList<>();
-		private final List<StopDTO> stopsList = new ArrayList<>();
-		private final List<RouteDTO> routeList = new ArrayList<>();
+		agencyProcessor.processAll();
+		levelProcessor.processAll();
+		stopProcessor.processAll();
+		routeProcessor.processAll();
+		calendarProcessor.processAll();
+		calendarDateProcessor.processAll();
+		shapeProcessor.processAll();
+		tripProcessor.processAll();
+		locationGroupProcessor.processAll();
+		bookingRuleProcessor.processAll();
+		stopTimeProcessor.processAll();
+		areaProcessor.processAll();
+		stopAreaProcessor.processAll();
+		networkProcessor.processAll();
+		routeNetworkProcessor.processAll();
+		frequencyProcessor.processAll();
+		locationGroupStopProcessor.processAll();
 	}
 }

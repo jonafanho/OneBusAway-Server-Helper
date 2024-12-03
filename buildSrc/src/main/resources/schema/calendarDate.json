@@ -1,0 +1,19 @@
+[
+	{
+		"name": ""
+	},
+	{
+		"name": "serviceId",
+		"reference": "Calendar",
+		"default": "new Calendar()"
+	},
+	{
+		"name": "date",
+		"type": "Date",
+		"default": "Date.create(\"\")"
+	},
+	{
+		"name": "exceptionType",
+		"enum": "ExceptionType"
+	}
+]

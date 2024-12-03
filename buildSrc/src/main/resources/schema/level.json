@@ -1,0 +1,14 @@
+[
+	{
+		"name": "levelId"
+	},
+	{
+		"name": "levelIndex",
+		"type": "float",
+		"default": "0"
+	},
+	{
+		"name": "levelName",
+		"type": "String"
+	}
+]

@@ -1,4 +1,4 @@
-package org.transport.entity;
+package org.transport.type;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

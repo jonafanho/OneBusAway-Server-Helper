@@ -1,0 +1,75 @@
+[
+	{
+		"name": ""
+	},
+	{
+		"name": "tripId",
+		"reference": "Trip",
+		"default": "new Trip()"
+	},
+	{
+		"name": "arrivalTime",
+		"type": "Time"
+	},
+	{
+		"name": "departureTime",
+		"type": "Time"
+	},
+	{
+		"name": "stopId",
+		"reference": "Stop"
+	},
+	{
+		"name": "locationGroupId",
+		"reference": "LocationGroup"
+	},
+	{
+		"name": "stopSequence",
+		"type": "int",
+		"default": "0"
+	},
+	{
+		"name": "stopHeadsign",
+		"type": "String"
+	},
+	{
+		"name": "startPickupDropOffWindow",
+		"type": "Time"
+	},
+	{
+		"name": "endPickupDropOffWindow",
+		"type": "Time"
+	},
+	{
+		"name": "pickupType",
+		"enum": "PickupDropOffType"
+	},
+	{
+		"name": "dropOffType",
+		"enum": "PickupDropOffType"
+	},
+	{
+		"name": "continuousPickup",
+		"enum": "ContinuousPickupDropOff"
+	},
+	{
+		"name": "continuousDropOff",
+		"enum": "ContinuousPickupDropOff"
+	},
+	{
+		"name": "shapeDistTraveled",
+		"type": "Float"
+	},
+	{
+		"name": "timepoint",
+		"enum": "NoYes"
+	},
+	{
+		"name": "pickupBookingRuleId",
+		"reference": "BookingRule"
+	},
+	{
+		"name": "dropOffBookingRuleId",
+		"reference": "BookingRule"
+	}
+]
