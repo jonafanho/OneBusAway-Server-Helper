@@ -9,16 +9,17 @@
 	},
 	{
 		"name": "serviceId",
-		"reference": "Calendar",
-		"default": "new Calendar()"
+		"type": "String"
 	},
 	{
 		"name": "tripHeadsign",
-		"type": "String"
+		"type": "String",
+		"length": 2048
 	},
 	{
 		"name": "tripShortName",
-		"type": "String"
+		"type": "String",
+		"length": 2048
 	},
 	{
 		"name": "directionId",

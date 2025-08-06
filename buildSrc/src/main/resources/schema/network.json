@@ -4,6 +4,7 @@
 	},
 	{
 		"name": "networkName",
-		"type": "String"
+		"type": "String",
+		"length": 2048
 	}
 ]

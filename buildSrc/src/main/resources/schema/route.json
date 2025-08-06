@@ -8,11 +8,13 @@
 	},
 	{
 		"name": "routeShortName",
-		"type": "String"
+		"type": "String",
+		"length": 2048
 	},
 	{
 		"name": "routeLongName",
-		"type": "String"
+		"type": "String",
+		"length": 2048
 	},
 	{
 		"name": "routeDesc",

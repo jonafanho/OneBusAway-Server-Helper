@@ -4,6 +4,7 @@
 	},
 	{
 		"name": "areaName",
-		"type": "String"
+		"type": "String",
+		"length": 2048
 	}
 ]

@@ -1,12 +1,12 @@
 package org.transport.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
+import org.transport.processor.GtfsStaticProcessor;
 import org.transport.type.Source;
 
 import java.io.File;
@@ -14,32 +14,37 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
+@Slf4j
 @Service
 @ConditionalOnProperty(name = "setup.enabled", havingValue = "true")
 public final class SetupService {
 
-	private static final Logger LOGGER = LogManager.getLogger(SetupService.class);
+	private final GtfsStaticProcessor gtfsStaticProcessor;
 
-	public SetupService(GtfsStaticProcessor gtfsStaticProcessor, @Value("${spring.datasource.url}") String datasourceUrl) throws IOException {
-		LOGGER.info("Starting setup");
-		FileUtils.cleanDirectory(Paths.get(datasourceUrl.split("file:")[1].split(";")[0]).getParent().toFile());
+	public SetupService(GtfsStaticProcessor gtfsStaticProcessor) {
+		this.gtfsStaticProcessor = gtfsStaticProcessor;
+	}
+
+	@PostConstruct
+	public void Setup() throws IOException {
+		log.info("Starting setup");
 
 		final Source[] sources = new ObjectMapper().readValue(new File("src/main/resources/sources.json"), Source[].class);
-		for (final Source source : sources) {
+		for (int i = 0; i < sources.length; i++) {
+			final Source source = sources[i];
 			final String[] staticSourceSplit = source.staticSource().split("/");
-			LOGGER.info("Reading source [{}]", staticSourceSplit[staticSourceSplit.length - 1]);
+			log.info("Reading source [{}]", staticSourceSplit[staticSourceSplit.length - 1]);
 			if (source.staticSource().startsWith("https://")) {
-				gtfsStaticProcessor.readZip(new URL(source.staticSource()).openStream());
+				gtfsStaticProcessor.readZip(new URL(source.staticSource()).openStream(), i);
 			} else if (Files.exists(Path.of(source.staticSource()))) {
-				gtfsStaticProcessor.readZip(FileUtils.openInputStream(new File(source.staticSource())));
+				gtfsStaticProcessor.readZip(FileUtils.openInputStream(new File(source.staticSource())), i);
 			} else {
-				LOGGER.warn("Invalid source [{}]!", source);
+				log.warn("Invalid source [{}]!", source);
 			}
 		}
 
 		gtfsStaticProcessor.process();
-		LOGGER.info("Finished setup");
+		log.info("Finished setup");
 	}
 }

@@ -30,7 +30,8 @@
 	},
 	{
 		"name": "stopHeadsign",
-		"type": "String"
+		"type": "String",
+		"length": 2048
 	},
 	{
 		"name": "startPickupDropOffWindow",

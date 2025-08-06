@@ -8,11 +8,13 @@
 	},
 	{
 		"name": "stopName",
-		"type": "String"
+		"type": "String",
+		"length": 2048
 	},
 	{
 		"name": "ttsStopName",
-		"type": "String"
+		"type": "String",
+		"length": 2048
 	},
 	{
 		"name": "stopDesc",

@@ -1,4 +1,4 @@
-package org.transport.service;
+package org.transport.processor;
 
 import jakarta.annotation.Nonnull;
 import org.springframework.stereotype.Component;
@@ -12,7 +12,7 @@ import java.util.TimeZone;
 @Component
 public final class AgencyProcessor extends GtfsStaticDataProcessorBase<Agency, AgencyRepository, Agency.AgencyDTO> {
 
-	private Map<Integer, TimeZone> timeZones = new HashMap<>();
+	private final Map<Integer, TimeZone> timeZones = new HashMap<>();
 
 	public AgencyProcessor(AgencyRepository repository) {
 		super(repository);

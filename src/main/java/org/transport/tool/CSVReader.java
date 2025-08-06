@@ -1,11 +1,10 @@
-package org.transport.service;
+package org.transport.tool;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.util.StringUtils;
 
 import java.io.InputStreamReader;
@@ -16,9 +15,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipInputStream;
 
+@Slf4j
 public final class CSVReader {
-
-	private static final Logger LOGGER = LogManager.getLogger(CSVReader.class);
 
 	public static <T> List<T> read(ZipInputStream zipInputStream, Class<T> dataClass) {
 		final List<T> dataList = Collections.synchronizedList(new ArrayList<>());
@@ -32,7 +30,7 @@ public final class CSVReader {
 			CSVFormat.DEFAULT.builder()
 					.setHeader()
 					.setSkipHeaderRecord(true)
-					.build()
+					.get()
 					.parse(new InputStreamReader(zipInputStream, StandardCharsets.UTF_8))
 					.forEach(csvRecord -> executorService.execute(() -> {
 						final Map<String, String> csvMap = new HashMap<>();
@@ -44,18 +42,18 @@ public final class CSVReader {
 						try {
 							dataList.add(objectMapper.convertValue(csvMap, dataClass));
 						} catch (Exception e) {
-							LOGGER.error("", e);
+							log.error("", e);
 						}
 					}));
 
 			executorService.shutdown();
 			if (executorService.awaitTermination(1, TimeUnit.HOURS)) {
-				LOGGER.info("Read successful in {} ms [{}]", System.currentTimeMillis() - startMillis, dataClass.getSimpleName());
+				log.info("Read successful in {} ms [{}]", System.currentTimeMillis() - startMillis, dataClass.getSimpleName());
 			} else {
-				LOGGER.error("Read failed in {} ms [{}]", System.currentTimeMillis() - startMillis, dataClass.getName());
+				log.error("Read failed in {} ms [{}]", System.currentTimeMillis() - startMillis, dataClass.getName());
 			}
 		} catch (Exception e) {
-			LOGGER.error("", e);
+			log.error("", e);
 		}
 
 		return dataList;

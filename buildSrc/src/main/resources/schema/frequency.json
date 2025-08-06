@@ -10,12 +10,12 @@
 	{
 		"name": "startTime",
 		"type": "Time",
-		"default": "Time.create(\"\")"
+		"default": "new Time()"
 	},
 	{
 		"name": "endTime",
 		"type": "Time",
-		"default": "Time.create(\"\")"
+		"default": "new Time()"
 	},
 	{
 		"name": "headwaySecs",

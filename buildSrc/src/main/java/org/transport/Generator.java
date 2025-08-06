@@ -64,20 +64,15 @@ public final class Generator {
 							final String type = getStringOrNull(jsonObject, "type");
 							final String enumType = getStringOrNull(jsonObject, "enum");
 							final String referenceType = getStringOrNull(jsonObject, "reference");
-							String actualType = referenceType == null ? type == null ? enumType : type : referenceType;
-							if ("Time".equals(actualType) || "Date".equals(actualType)) {
-								actualType = "String";
-							}
-							String defaultValue = getStringOrNull(jsonObject, "default");
-							if ("Date.create(\"\")".equals(defaultValue) || "Time.create(\"\")".equals(defaultValue)) {
-								defaultValue = "\"\"";
-							}
+							final String actualType = referenceType == null ? type == null ? enumType : type : referenceType;
+							final String defaultValue = getStringOrNull(jsonObject, "default");
+							final int length = getInteger(jsonObject, "length");
 							stringBuilderConstructor1.append(String.format("\t\tthis.%s=%s;\n", name, defaultValue));
 							stringBuilderConstructor2.append(String.format("\t\tthis.%s=%s;\n", name, defaultValue));
 							stringBuilderConstructor3.append(String.format("\t\tthis.%s=%s;\n", name, name));
 
 							if (referenceType == null) {
-								stringBuilderFields.append(String.format("\t%s@Column(nullable=%s)%s\n", enumType == null ? "" : "@Enumerated(EnumType.STRING)", defaultValue == null, defaultValue == null ? "@Nullable" : "@Nonnull"));
+								stringBuilderFields.append(String.format("\t%s@Column(nullable=%s%s)%s%s\n", enumType == null ? "" : "@Enumerated(EnumType.STRING)", defaultValue == null, length > 0 ? ",length=" + length : "", defaultValue == null ? "@Nullable" : "@Nonnull", "Time".equals(actualType) || "Date".equals(actualType) ? String.format("@Convert(converter=%s.Converter.class)", actualType) : ""));
 								stringBuilderDTOFields.append(String.format("\t\tpublic %s %s;\n", actualType, name));
 								dtoConvert.add(defaultValue == null || actualType != null && Character.isLowerCase(actualType.charAt(0)) ? name : String.format("%s==null?%s:%s", name, defaultValue, name));
 							} else {
@@ -120,6 +115,10 @@ public final class Generator {
 
 	private static String getStringOrNull(JsonObject jsonObject, String key) {
 		return jsonObject.has(key) ? jsonObject.get(key).getAsString() : null;
+	}
+
+	private static int getInteger(JsonObject jsonObject, String key) {
+		return jsonObject.has(key) ? jsonObject.get(key).getAsInt() : -1;
 	}
 
 	private static String capitalizeFirstLetter(String text) {

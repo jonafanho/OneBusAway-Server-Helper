@@ -1,37 +1,48 @@
 package org.transport.type;
 
-public final class Time extends DateTimeBase<Time> {
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+import jakarta.persistence.AttributeConverter;
 
-	private Time(int a, int b, int c) {
-		super(a, b, c);
+public record Time(int millisAfterMidnight) {
+
+	public Time() {
+		this(0);
 	}
 
+	private Time(String timeString) {
+		this(parse(timeString));
+	}
+
+	@Nonnull
 	@Override
 	public String toString() {
-		return String.format("%s:%s:%s", a, b, c);
+		final int seconds = millisAfterMidnight / 1000;
+		final int minutes = seconds / 60;
+		return String.format("%02d:%02d:%02d", minutes / 60, minutes % 60, seconds % 60);
 	}
 
-	@Override
-	public Class<Time> returnedClass() {
-		return Time.class;
-	}
-
-	@Override
-	public Time deepCopy(Time time) {
-		return new Time(time.a, time.b, time.c);
-	}
-
-	@Override
-	protected Time decode(String data) {
-		return create(data);
-	}
-
-	public static Time create(String data) {
+	private static int parse(String data) {
 		try {
 			final String[] dataSplit = data.split(":");
-			return new Time(Integer.parseInt(dataSplit[0]), Integer.parseInt(dataSplit[1]), Integer.parseInt(dataSplit[2]));
+			return ((Integer.parseInt(dataSplit[0]) * 60 + Integer.parseInt(dataSplit[1])) * 60 + Integer.parseInt(dataSplit[2])) * 1000;
 		} catch (Exception ignored) {
-			return new Time(0, 0, 0);
+			return 0;
+		}
+	}
+
+	public static class Converter implements AttributeConverter<Time, String> {
+
+		@Nullable
+		@Override
+		public String convertToDatabaseColumn(Time time) {
+			return time == null ? null : time.toString();
+		}
+
+		@Nullable
+		@Override
+		public Time convertToEntityAttribute(String data) {
+			return data == null ? null : new Time(data);
 		}
 	}
 }

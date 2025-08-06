@@ -1,20 +1,20 @@
-package org.transport.service;
+package org.transport.processor;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.transport.generated.*;
+import org.transport.tool.CSVReader;
 
 import java.io.InputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+@Slf4j
 @Component
 public final class GtfsStaticProcessor {
 
 	private final AgencyProcessor agencyProcessor;
 
-	private static final Logger LOGGER = LogManager.getLogger(GtfsStaticProcessor.class);
 	private final StopProcessor stopProcessor;
 	private final RouteProcessor routeProcessor;
 	private final TripProcessor tripProcessor;
@@ -34,7 +34,23 @@ public final class GtfsStaticProcessor {
 
 	public GtfsStaticProcessor(
 			AgencyProcessor agencyProcessor,
-			StopProcessor stopProcessor, RouteProcessor routeProcessor, TripProcessor tripProcessor, StopTimeProcessor stopTimeProcessor, CalendarProcessor calendarProcessor, CalendarDateProcessor calendarDateProcessor, AreaProcessor areaProcessor, StopAreaProcessor stopAreaProcessor, NetworkProcessor networkProcessor, RouteNetworkProcessor routeNetworkProcessor, ShapeProcessor shapeProcessor, FrequencyProcessor frequencyProcessor, LevelProcessor levelProcessor, LocationGroupProcessor locationGroupProcessor, LocationGroupStopProcessor locationGroupStopProcessor, BookingRuleProcessor bookingRuleProcessor) {
+			StopProcessor stopProcessor,
+			RouteProcessor routeProcessor,
+			TripProcessor tripProcessor,
+			StopTimeProcessor stopTimeProcessor,
+			CalendarProcessor calendarProcessor,
+			CalendarDateProcessor calendarDateProcessor,
+			AreaProcessor areaProcessor,
+			StopAreaProcessor stopAreaProcessor,
+			NetworkProcessor networkProcessor,
+			RouteNetworkProcessor routeNetworkProcessor,
+			ShapeProcessor shapeProcessor,
+			FrequencyProcessor frequencyProcessor,
+			LevelProcessor levelProcessor,
+			LocationGroupProcessor locationGroupProcessor,
+			LocationGroupStopProcessor locationGroupStopProcessor,
+			BookingRuleProcessor bookingRuleProcessor
+	) {
 		this.agencyProcessor = agencyProcessor;
 		this.stopProcessor = stopProcessor;
 		this.routeProcessor = routeProcessor;
@@ -54,68 +70,68 @@ public final class GtfsStaticProcessor {
 		this.bookingRuleProcessor = bookingRuleProcessor;
 	}
 
-	public void readZip(InputStream inputStream) {
+	public void readZip(InputStream inputStream, int sourceIndex) {
 		try (final InputStream newInputStream = inputStream; final ZipInputStream zipInputStream = new ZipInputStream(newInputStream)) {
 			ZipEntry zipEntry;
 			while ((zipEntry = zipInputStream.getNextEntry()) != null) {
 				final String name = zipEntry.getName();
 				switch (name) {
 					case "agency.txt":
-						agencyProcessor.initialize(CSVReader.read(zipInputStream, Agency.AgencyDTO.class));
+						agencyProcessor.initialize(CSVReader.read(zipInputStream, Agency.AgencyDTO.class), sourceIndex);
 						break;
 					case "stops.txt":
-						stopProcessor.initialize(CSVReader.read(zipInputStream, Stop.StopDTO.class));
+						stopProcessor.initialize(CSVReader.read(zipInputStream, Stop.StopDTO.class), sourceIndex);
 						break;
 					case "routes.txt":
-						routeProcessor.initialize(CSVReader.read(zipInputStream, Route.RouteDTO.class));
+						routeProcessor.initialize(CSVReader.read(zipInputStream, Route.RouteDTO.class), sourceIndex);
 						break;
 					case "trips.txt":
-						tripProcessor.initialize(CSVReader.read(zipInputStream, Trip.TripDTO.class));
+						tripProcessor.initialize(CSVReader.read(zipInputStream, Trip.TripDTO.class), sourceIndex);
 						break;
 					case "stop_times.txt":
-						stopTimeProcessor.initialize(CSVReader.read(zipInputStream, StopTime.StopTimeDTO.class));
+						stopTimeProcessor.initialize(CSVReader.read(zipInputStream, StopTime.StopTimeDTO.class), sourceIndex);
 						break;
 					case "calendar.txt":
-						calendarProcessor.initialize(CSVReader.read(zipInputStream, Calendar.CalendarDTO.class));
+						calendarProcessor.initialize(CSVReader.read(zipInputStream, Calendar.CalendarDTO.class), sourceIndex);
 						break;
 					case "calendar_dates.txt":
-						calendarDateProcessor.initialize(CSVReader.read(zipInputStream, CalendarDate.CalendarDateDTO.class));
+						calendarDateProcessor.initialize(CSVReader.read(zipInputStream, CalendarDate.CalendarDateDTO.class), sourceIndex);
 						break;
 					case "areas.txt":
-						areaProcessor.initialize(CSVReader.read(zipInputStream, Area.AreaDTO.class));
+						areaProcessor.initialize(CSVReader.read(zipInputStream, Area.AreaDTO.class), sourceIndex);
 						break;
 					case "stop_areas.txt":
-						stopAreaProcessor.initialize(CSVReader.read(zipInputStream, StopArea.StopAreaDTO.class));
+						stopAreaProcessor.initialize(CSVReader.read(zipInputStream, StopArea.StopAreaDTO.class), sourceIndex);
 						break;
 					case "networks.txt":
-						networkProcessor.initialize(CSVReader.read(zipInputStream, Network.NetworkDTO.class));
+						networkProcessor.initialize(CSVReader.read(zipInputStream, Network.NetworkDTO.class), sourceIndex);
 						break;
 					case "route_networks.txt":
-						routeNetworkProcessor.initialize(CSVReader.read(zipInputStream, RouteNetwork.RouteNetworkDTO.class));
+						routeNetworkProcessor.initialize(CSVReader.read(zipInputStream, RouteNetwork.RouteNetworkDTO.class), sourceIndex);
 						break;
 					case "shapes.txt":
-						shapeProcessor.initialize(CSVReader.read(zipInputStream, Shape.ShapeDTO.class));
+						shapeProcessor.initialize(CSVReader.read(zipInputStream, Shape.ShapeDTO.class), sourceIndex);
 						break;
 					case "frequencies.txt":
-						frequencyProcessor.initialize(CSVReader.read(zipInputStream, Frequency.FrequencyDTO.class));
+						frequencyProcessor.initialize(CSVReader.read(zipInputStream, Frequency.FrequencyDTO.class), sourceIndex);
 						break;
 					case "levels.txt":
-						levelProcessor.initialize(CSVReader.read(zipInputStream, Level.LevelDTO.class));
+						levelProcessor.initialize(CSVReader.read(zipInputStream, Level.LevelDTO.class), sourceIndex);
 						break;
 					case "location_groups.txt":
-						locationGroupProcessor.initialize(CSVReader.read(zipInputStream, LocationGroup.LocationGroupDTO.class));
+						locationGroupProcessor.initialize(CSVReader.read(zipInputStream, LocationGroup.LocationGroupDTO.class), sourceIndex);
 						break;
 					case "location_group_stops.txt":
-						locationGroupStopProcessor.initialize(CSVReader.read(zipInputStream, LocationGroupStop.LocationGroupStopDTO.class));
+						locationGroupStopProcessor.initialize(CSVReader.read(zipInputStream, LocationGroupStop.LocationGroupStopDTO.class), sourceIndex);
 						break;
 					case "booking_rules.txt":
-						bookingRuleProcessor.initialize(CSVReader.read(zipInputStream, BookingRule.BookingRuleDTO.class));
+						bookingRuleProcessor.initialize(CSVReader.read(zipInputStream, BookingRule.BookingRuleDTO.class), sourceIndex);
 						break;
 				}
 				zipInputStream.closeEntry();
 			}
 		} catch (Exception e) {
-			LOGGER.error("", e);
+			log.error("", e);
 		}
 	}
 

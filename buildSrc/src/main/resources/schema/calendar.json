@@ -40,11 +40,11 @@
 	{
 		"name": "startDate",
 		"type": "Date",
-		"default": "Date.create(\"\")"
+		"default": "new Date()"
 	},
 	{
 		"name": "endDate",
 		"type": "Date",
-		"default": "Date.create(\"\")"
+		"default": "new Date()"
 	}
 ]

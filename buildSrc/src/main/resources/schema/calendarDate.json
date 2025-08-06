@@ -4,13 +4,12 @@
 	},
 	{
 		"name": "serviceId",
-		"reference": "Calendar",
-		"default": "new Calendar()"
+		"type": "String"
 	},
 	{
 		"name": "date",
 		"type": "Date",
-		"default": "Date.create(\"\")"
+		"default": "new Date()"
 	},
 	{
 		"name": "exceptionType",

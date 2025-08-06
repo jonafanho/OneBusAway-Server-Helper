@@ -1,4 +1,4 @@
-package org.transport.service;
+package org.transport.processor;
 
 import jakarta.annotation.Nonnull;
 import org.springframework.stereotype.Component;

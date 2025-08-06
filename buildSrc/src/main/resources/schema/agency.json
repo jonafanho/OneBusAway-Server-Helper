@@ -5,6 +5,7 @@
 	{
 		"name": "agencyName",
 		"type": "String",
+		"length": 2048,
 		"default": "\"\""
 	},
 	{
