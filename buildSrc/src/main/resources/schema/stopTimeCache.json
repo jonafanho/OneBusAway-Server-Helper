@@ -1,0 +1,74 @@
+[
+	{
+		"name": ""
+	},
+	{
+		"name": "stopId",
+		"type": "String",
+		"default": "\"\""
+	},
+	{
+		"name": "tripId",
+		"type": "String",
+		"default": "\"\""
+	},
+	{
+		"name": "blockId",
+		"type": "String"
+	},
+	{
+		"name": "routeId",
+		"type": "String",
+		"default": "\"\""
+	},
+	{
+		"name": "arrivalTime",
+		"type": "long",
+		"default": 0
+	},
+	{
+		"name": "departureTime",
+		"type": "long",
+		"default": 0
+	},
+	{
+		"name": "stopIndexInRoute",
+		"type": "int",
+		"default": 0
+	},
+	{
+		"name": "totalStopsInRoute",
+		"type": "int",
+		"default": 0
+	},
+	{
+		"name": "isTerminating",
+		"type": "boolean",
+		"default": false
+	},
+	{
+		"name": "routeShortName",
+		"type": "String",
+		"default": "\"\""
+	},
+	{
+		"name": "routeLongName",
+		"type": "String",
+		"default": "\"\""
+	},
+	{
+		"name": "stopHeadsign",
+		"type": "String",
+		"default": "\"\""
+	},
+	{
+		"name": "tripHeadsign",
+		"type": "String",
+		"default": "\"\""
+	},
+	{
+		"name": "isTimepoint",
+		"type": "boolean",
+		"default": false
+	}
+]

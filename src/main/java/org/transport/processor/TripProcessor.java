@@ -4,6 +4,7 @@ import jakarta.annotation.Nonnull;
 import org.springframework.stereotype.Component;
 import org.transport.generated.Trip;
 import org.transport.repository.TripRepository;
+import org.transport.type.DTOBase;
 
 @Component
 public final class TripProcessor extends GtfsStaticDataProcessorBase<Trip, TripRepository, Trip.TripDTO> {
@@ -15,6 +16,7 @@ public final class TripProcessor extends GtfsStaticDataProcessorBase<Trip, TripR
 	@Nonnull
 	@Override
 	protected Trip.TripDTO process(Trip.TripDTO data, int sourceIndex) {
+		data.serviceId = DTOBase.convertId(sourceIndex, data.serviceId);
 		return data;
 	}
 }

@@ -22,14 +22,16 @@ public final class StopController {
 
 	@GetMapping("/stop")
 	public DataResponse stop(@RequestParam String stopId) {
+		final long requestStartMillis = System.currentTimeMillis();
 		final Stop stop = stopRepository.findById(stopId).orElse(null);
-		return stop == null ? DataResponse.createError(new Exception("Stop not found")) : DataResponse.create(stop);
+		return stop == null ? DataResponse.createError(requestStartMillis, new Exception("Stop not found")) : DataResponse.create(requestStartMillis, stop);
 	}
 
 	@GetMapping("/stops-for-location")
-	public DataResponse stopsForLocation(@RequestParam double lat, @RequestParam double lon, @RequestParam double latSpan, @RequestParam double lonSpan, @RequestParam(required = false, defaultValue = "32") int maxCount) {
+	public DataResponse stopsForLocation(@RequestParam double lat, @RequestParam double lon, @RequestParam double latSpan, @RequestParam double lonSpan, @RequestParam(defaultValue = "32") int maxCount) {
+		final long requestStartMillis = System.currentTimeMillis();
 		final double halfLatSpan = Math.abs(latSpan / 2);
 		final double halfLonSpan = Math.abs(lonSpan / 2);
-		return ListResult.fromPage(stopRepository.findByStopLatBetweenAndStopLonBetween(lat - halfLatSpan, lat + halfLatSpan, lon - halfLonSpan, lon + halfLonSpan, PageRequest.of(0, maxCount)));
+		return ListResult.fromPage(requestStartMillis, stopRepository.findByStopLatBetweenAndStopLonBetween(lat - halfLatSpan, lat + halfLatSpan, lon - halfLonSpan, lon + halfLonSpan, PageRequest.of(0, maxCount)));
 	}
 }

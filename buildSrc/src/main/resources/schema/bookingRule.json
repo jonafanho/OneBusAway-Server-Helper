@@ -33,7 +33,8 @@
 	},
 	{
 		"name": "priorNoticeServiceId",
-		"reference": "Calendar"
+		"type": "String",
+		"default": "\"\""
 	},
 	{
 		"name": "message",

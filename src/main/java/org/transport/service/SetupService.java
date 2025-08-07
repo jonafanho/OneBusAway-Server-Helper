@@ -1,6 +1,5 @@
 package org.transport.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -20,9 +19,11 @@ import java.nio.file.Path;
 @ConditionalOnProperty(name = "setup.enabled", havingValue = "true")
 public final class SetupService {
 
+	private final SourceService sourceService;
 	private final GtfsStaticProcessor gtfsStaticProcessor;
 
-	public SetupService(GtfsStaticProcessor gtfsStaticProcessor) {
+	public SetupService(SourceService sourceService, GtfsStaticProcessor gtfsStaticProcessor) {
+		this.sourceService = sourceService;
 		this.gtfsStaticProcessor = gtfsStaticProcessor;
 	}
 
@@ -30,9 +31,8 @@ public final class SetupService {
 	public void Setup() throws IOException {
 		log.info("Starting setup");
 
-		final Source[] sources = new ObjectMapper().readValue(new File("src/main/resources/sources.json"), Source[].class);
-		for (int i = 0; i < sources.length; i++) {
-			final Source source = sources[i];
+		for (int i = 0; i < sourceService.sources.length; i++) {
+			final Source source = sourceService.sources[i];
 			final String[] staticSourceSplit = source.staticSource().split("/");
 			log.info("Reading source [{}]", staticSourceSplit[staticSourceSplit.length - 1]);
 			if (source.staticSource().startsWith("https://")) {

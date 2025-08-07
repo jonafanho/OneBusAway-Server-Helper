@@ -4,7 +4,8 @@
 	},
 	{
 		"name": "serviceId",
-		"type": "String"
+		"type": "String",
+		"default": "\"\""
 	},
 	{
 		"name": "date",

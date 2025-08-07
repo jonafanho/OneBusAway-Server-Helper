@@ -1,6 +1,11 @@
 [
 	{
-		"name": "shapeId"
+		"name": ""
+	},
+	{
+		"name": "shapeId",
+		"type": "String",
+		"default": "\"\""
 	},
 	{
 		"name": "shapePtLat",

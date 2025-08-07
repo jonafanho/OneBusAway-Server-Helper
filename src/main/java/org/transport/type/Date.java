@@ -25,7 +25,7 @@ public record Date(LocalDate localDate) {
 		return localDate.format(FORMATTER);
 	}
 
-	public static class Converter implements AttributeConverter<Date, String> {
+	public static final class Converter implements AttributeConverter<Date, String> {
 
 		@Nullable
 		@Override

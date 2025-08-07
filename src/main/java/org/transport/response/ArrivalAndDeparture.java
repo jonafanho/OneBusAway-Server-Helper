@@ -1,28 +1,23 @@
 package org.transport.response;
 
-import org.transport.generated.Frequency;
+import jakarta.annotation.Nullable;
 
 public record ArrivalAndDeparture(
-		String routeId,
-		String tripId,
-		long serviceDate,
-		String stopId,
-		int stopSequence,
-		int totalStopsInTrip,
-		int blockTripSequence,
+		long arrivalTime,
+		long departureTime,
+		boolean isTerminating,
 		String routeShortName,
 		String routeLongName,
+		String stopHeadsign,
 		String tripHeadsign,
-		boolean arrivalEnabled,
-		boolean departureEnabled,
-		long scheduledArrivalTime,
-		long scheduledDepartureTime,
-		Frequency frequency,
-		String predicted,
-		String predictedArrivalTime,
-		String predictedDepartureTime,
-		String distanceFromStop,
-		String numberOfStopsAway,
-		String tripStatus
+		boolean isTimepoint,
+		@Nullable String vehicleId,
+		@Nullable String year,
+		@Nullable String make,
+		@Nullable String model,
+		@Nullable String fuel,
+		int deviation,
+		boolean isAnomaly,
+		int length
 ) {
 }
