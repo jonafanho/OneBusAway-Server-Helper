@@ -1,9 +1,6 @@
 package org.transport.response;
 
 import jakarta.annotation.Nullable;
-import org.transport.generated.StopTimeCache;
-
-import java.util.Objects;
 
 public record RealtimeResponse(
 		String agency,
@@ -22,8 +19,4 @@ public record RealtimeResponse(
 		boolean isAnomaly,
 		int length
 ) {
-
-	public boolean matchesStopTimeCache(StopTimeCache stopTimeCache) {
-		return Objects.equals(stopTimeCache.getBlockId(), blockId);
-	}
 }

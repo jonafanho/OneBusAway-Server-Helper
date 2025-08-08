@@ -1,3 +1,0 @@
-package org.transport.type;
-
-public enum RouteType {TRAM, SUBWAY, RAIL, BUS, FERRY, CABLE_TRAM, AERIAL_LIFT, FUNICULAR, TYPE_8, TYPE_9, TYPE_10, TROLLEYBUS, MONORAIL}
