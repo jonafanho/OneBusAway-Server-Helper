@@ -1,0 +1,30 @@
+.departures {
+	overflow-wrap: break-word;
+}
+
+.departure-fixed-width-large {
+	max-width: 5rem;
+	min-width: 5rem;
+}
+
+.departure-fixed-width-small {
+	max-width: 4rem;
+	min-width: 4rem;
+}
+
+.departure-heading {
+	font-size: 2rem;
+	text-align: center;
+}
+
+.departure-small {
+	font-size: 0.8rem;
+}
+
+.departure-bold {
+	font-weight: bold;
+}
+
+.departure-align-right {
+	text-align: right;
+}

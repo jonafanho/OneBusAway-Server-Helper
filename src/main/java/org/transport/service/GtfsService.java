@@ -2,7 +2,6 @@ package org.transport.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.onebusaway.gtfs.impl.GtfsRelationalDaoImpl;
 import org.onebusaway.gtfs.model.Stop;
 import org.onebusaway.gtfs.serialization.GtfsReader;
 import org.onebusaway.gtfs_merge.GtfsMergeContext;
@@ -14,6 +13,7 @@ import org.onebusaway.gtfs_merge.strategies.scoring.StopDistanceDuplicateScoring
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.transport.entity.GtfsDao;
 import org.transport.entity.GtfsData;
 import org.transport.entity.GtfsSource;
 import org.transport.entity.RealtimeData;
@@ -39,7 +39,7 @@ public final class GtfsService {
 		log.info("Finished setup");
 	}
 
-	private static GtfsRelationalDaoImpl setupSource(GtfsSource gtfsSource) throws IOException {
+	private static GtfsDao setupSource(GtfsSource gtfsSource) throws IOException {
 		final List<String> sources = gtfsSource.schedule().sources();
 		final File sourceFile;
 
@@ -67,11 +67,11 @@ public final class GtfsService {
 
 		final GtfsReader gtfsReader = new GtfsReader();
 		gtfsReader.setInputLocation(sourceFile);
-		final GtfsRelationalDaoImpl gtfsRelationalDao = new GtfsRelationalDaoImpl();
-		gtfsReader.setEntityStore(gtfsRelationalDao);
+		final GtfsDao gtfsDao = new GtfsDao();
+		gtfsReader.setEntityStore(gtfsDao);
 		gtfsReader.run();
 
-		return gtfsRelationalDao;
+		return gtfsDao;
 	}
 
 	private static final class NewStopMergeStrategy extends StopMergeStrategy {

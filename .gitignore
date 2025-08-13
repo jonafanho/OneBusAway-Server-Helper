@@ -31,4 +31,5 @@ bin/
 sources.json
 sources/
 **/generated/
-data/
+src/main/resources/static/
+website/.gitignore

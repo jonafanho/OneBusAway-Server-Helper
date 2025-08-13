@@ -1,0 +1,26 @@
+<p-drawer [(visible)]="visible" [header]="getName()" position="right" [modal]="false" [style]="{width: '36rem'}" (onHide)="closeDrawer()">
+	<div class="column gap wrapper">
+		<div class="padding-sides">{{ getRouteList() }}</div>
+		<div class="padding-sides">{{ getId() }}</div>
+		<div class="column content">
+			@for (departure of getFormattedDepartures(); track $index) {
+				<div class="row gap center padding-sides departures">
+					<div class="departure-heading departure-fixed-width-large departure-bold">{{ departure.routeName }}</div>
+					<div class="column spacing">
+						<div class="departure-bold">{{ departure.headsign }}</div>
+						<div class="row gap departure-small">
+							<div class="departure-fixed-width-large">{{ departure.absoluteTimeFormatted }}</div>
+							<div>{{ departure.vehicleId }}</div>
+						</div>
+						<div class="row gap departure-small">
+							<div class="departure-fixed-width-large">{{ departure.deviationString }}</div>
+							<div>{{ departure.vehicleDetails }}</div>
+						</div>
+					</div>
+					<div class="departure-fixed-width-small departure-align-right">{{ departure.relativeTimeFormatted }}</div>
+				</div>
+				<p-divider/>
+			}
+		</div>
+	</div>
+</p-drawer>
