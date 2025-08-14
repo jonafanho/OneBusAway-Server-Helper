@@ -37,8 +37,16 @@
 								<div class="arrival-fixed-width-medium">{{ arrival.absoluteTimeFormatted }}</div>
 								<div>{{ arrival.vehicleDetails }}</div>
 							</div>
+							@for (frequency of arrival.frequencies; track $index) {
+								<div class="row gap arrival-small">
+									<div class="arrival-fixed-width-extra-large">{{ frequency.startTimeFormatted }} – {{ frequency.endTimeFormatted }}</div>
+									<div>{{ t("arrivals.frequency", {minutes: frequency.headwayMinutes}) }}</div>
+								</div>
+							}
 						</div>
-						<div class="arrival-trailing arrival-fixed-width-large bold-text">{{ arrival.getRelativeTimeFormatted() }}</div>
+						@if (arrival.getRelativeTimeFormatted()) {
+							<div class="arrival-trailing arrival-fixed-width-large bold-text">{{ arrival.getRelativeTimeFormatted() }}</div>
+						}
 					</div>
 				}
 				@if (getAddMinutesAfterLoading()) {

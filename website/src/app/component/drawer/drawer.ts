@@ -5,6 +5,7 @@ import {DividerModule} from "primeng/divider";
 import {TranslocoDirective} from "@jsverse/transloco";
 import {ProgressBarModule} from "primeng/progressbar";
 import {ButtonModule} from "primeng/button";
+import {MINUTES_PER_HOUR} from "../../utility/constants";
 
 @Component({
 	selector: "app-drawer",
@@ -58,6 +59,6 @@ export class DrawerComponent {
 	}
 
 	getHoursAfter() {
-		return Math.floor(this.arrivalsService.getMinutesAfter() / 60);
+		return Math.floor(this.arrivalsService.getMinutesAfter() / MINUTES_PER_HOUR);
 	}
 }

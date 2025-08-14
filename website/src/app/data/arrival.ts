@@ -1,4 +1,4 @@
-import {formatTime} from "../utility/utilities";
+import {formatRelativeTime} from "../utility/utilities";
 
 export class Arrival {
 
@@ -7,20 +7,27 @@ export class Arrival {
 		readonly headsign: string,
 		readonly deviationMinutes: number,
 		readonly deviationString: string,
-		readonly absoluteTime: number,
+		private readonly absoluteTime: number,
 		readonly absoluteTimeFormatted: string,
+		private relativeTimeFormatted: string,
+		readonly frequencies: Frequency[],
 		readonly vehicleId: string,
 		readonly vehicleDetails: string,
-		private relativeTimeFormatted: string,
 	) {
 	}
 
 	formatRelativeTime() {
 		const currentMillis = Date.now();
-		this.relativeTimeFormatted = formatTime(this.absoluteTime - currentMillis);
+		this.relativeTimeFormatted = formatRelativeTime(this.absoluteTime - currentMillis);
 	}
 
 	getRelativeTimeFormatted() {
 		return this.relativeTimeFormatted;
 	}
+}
+
+export class Frequency {
+	readonly startTimeFormatted!: string;
+	readonly endTimeFormatted!: string;
+	readonly headwayMinutes!: number;
 }

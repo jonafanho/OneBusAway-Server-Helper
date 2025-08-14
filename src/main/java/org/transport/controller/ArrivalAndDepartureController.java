@@ -38,28 +38,66 @@ public final class ArrivalAndDepartureController {
 	) {
 		final long requestStartMillis = System.currentTimeMillis();
 		final long queryStartMillis = time <= 0 ? requestStartMillis : time;
-		final long queryEndMillis = queryStartMillis + minutesAfter * Constants.SECONDS_PER_MINUTE * Constants.MILLIS_PER_SECOND;
+		final long queryEndMillis = queryStartMillis + minutesAfter * Constants.MILLIS_PER_MINUTE;
 
 		final Map<String, List<Integer>> stopSequenceListCache = new HashMap<>();
 		final List<Mono<ArrivalAndDeparture>> arrivalAndDepartureMonoList = new ArrayList<>();
 
 		iterateByStopId(stopId, queryStartMillis, queryEndMillis, (gtfsData, stop, offsetMillis, validServiceIds) -> gtfsData.gtfsDao.getStopTimesForStop(stop).forEach(stopTime -> {
-			if (stopTime.isArrivalTimeSet() && stopTime.isDepartureTimeSet() && validServiceIds.contains(stopTime.getTrip().getServiceId())) {
-				final Trip trip = stopTime.getTrip();
+			final Trip trip = stopTime.getTrip();
+			if (validServiceIds.contains(trip.getServiceId())) {
 				final List<Integer> stopSequences = stopSequenceListCache.computeIfAbsent(trip.getId().toString(), key -> gtfsData.gtfsDao.getStopTimesForTrip(trip).stream().map(StopTime::getStopSequence).toList());
 				final boolean isTerminating = stopSequences.indexOf(stopTime.getStopSequence()) == stopSequences.size() - 1;
 
 				if (!isTerminating || showTerminating) {
 					final Route route = trip.getRoute();
+					final boolean hasArrivalTime = stopTime.isArrivalTimeSet();
+					final boolean hasDepartureTime = stopTime.isDepartureTimeSet();
+					final Long scheduledArrivalMillis;
+					final Long scheduledDepartureMillis;
+					final List<ArrivalAndDeparture.Frequency> frequencies = new ArrayList<>();
+
+					if (hasArrivalTime || hasDepartureTime) {
+						final long scheduledArrivalTime;
+						final long scheduledDepartureTime;
+
+						if (hasArrivalTime && hasDepartureTime) {
+							scheduledArrivalTime = stopTime.getArrivalTime();
+							scheduledDepartureTime = stopTime.getDepartureTime();
+						} else if (hasArrivalTime) {
+							scheduledArrivalTime = stopTime.getArrivalTime();
+							scheduledDepartureTime = scheduledArrivalTime;
+						} else {
+							scheduledDepartureTime = stopTime.getDepartureTime();
+							scheduledArrivalTime = scheduledDepartureTime;
+						}
+
+						scheduledArrivalMillis = scheduledArrivalTime * Constants.MILLIS_PER_SECOND + offsetMillis;
+						scheduledDepartureMillis = scheduledDepartureTime * Constants.MILLIS_PER_SECOND + offsetMillis;
+					} else {
+						gtfsData.gtfsDao.getFrequenciesForTrip(trip)
+								.stream()
+								.filter(frequency -> isBetween((long) frequency.getStartTime() * Constants.MILLIS_PER_SECOND + offsetMillis, queryStartMillis, queryEndMillis) || isBetween((long) frequency.getEndTime() * Constants.MILLIS_PER_SECOND + offsetMillis, queryStartMillis, queryEndMillis))
+								.forEach(frequency -> frequencies.add(new ArrivalAndDeparture.Frequency(
+										(long) frequency.getStartTime() * Constants.MILLIS_PER_SECOND + offsetMillis,
+										(long) frequency.getEndTime() * Constants.MILLIS_PER_SECOND + offsetMillis,
+										frequency.getHeadwaySecs() * Constants.MILLIS_PER_SECOND,
+										frequency.getExactTimes() > 0
+								)));
+						frequencies.sort(Comparator.comparingLong(ArrivalAndDeparture.Frequency::startTime));
+
+						scheduledArrivalMillis = null;
+						scheduledDepartureMillis = null;
+					}
 
 					arrivalAndDepartureMonoList.add(gtfsData.realtimeData.fetch(stopTime).mapNotNull(optionalRealtimeResponse -> {
 						final RealtimeResponse realtimeResponse = optionalRealtimeResponse.orElse(null);
 						final int deviation = realtimeResponse == null ? 0 : realtimeResponse.deviation() * Constants.MILLIS_PER_SECOND;
-						final long arrivalMillis = (long) stopTime.getArrivalTime() * Constants.MILLIS_PER_SECOND + offsetMillis + deviation;
-						final long scheduledDepartureMillis = (long) stopTime.getDepartureTime() * Constants.MILLIS_PER_SECOND + offsetMillis;
-						final long departureMillis = Math.min(Math.max(arrivalMillis, scheduledDepartureMillis), scheduledDepartureMillis + deviation);
+						final Long arrivalMillis = scheduledArrivalMillis == null ? null : scheduledArrivalMillis + deviation;
+						final Long departureMillis = scheduledDepartureMillis == null ? null : Math.min(Math.max(arrivalMillis, scheduledDepartureMillis), scheduledDepartureMillis + deviation);
 
-						if (isBetween(arrivalMillis, queryStartMillis, queryEndMillis) || isBetween(departureMillis, queryStartMillis, queryEndMillis)) {
+						if (!frequencies.isEmpty() || arrivalMillis != null && isBetween(arrivalMillis, queryStartMillis, queryEndMillis) || departureMillis != null && isBetween(departureMillis, queryStartMillis, queryEndMillis)) {
+							final StopLocation lastStop = gtfsData.gtfsDao.getLastStopLocationForTrip(trip);
 							return new ArrivalAndDeparture(
 									arrivalMillis,
 									departureMillis,
@@ -68,7 +106,9 @@ public final class ArrivalAndDepartureController {
 									cleanName(route.getLongName(), route.getShortName()),
 									cleanName(stopTime.getStopHeadsign(), route.getShortName()),
 									cleanName(trip.getTripHeadsign(), route.getShortName()),
+									lastStop == null ? null : lastStop.getName(),
 									stopTime.isTimepointSet() && stopTime.getTimepoint() > 0,
+									frequencies,
 									realtimeResponse == null ? null : realtimeResponse.vehicleId(),
 									realtimeResponse == null ? null : realtimeResponse.year(),
 									realtimeResponse == null ? null : realtimeResponse.make(),
@@ -88,7 +128,7 @@ public final class ArrivalAndDepartureController {
 
 		return Flux.fromIterable(arrivalAndDepartureMonoList).flatMap(mono -> mono).collectList().map(arrivalAndDepartureList -> {
 			final List<ArrivalAndDeparture> sortedArrivalAndDepartureList = new ArrayList<>(arrivalAndDepartureList);
-			sortedArrivalAndDepartureList.sort(Comparator.comparingLong(ArrivalAndDeparture::departureTime));
+			Collections.sort(sortedArrivalAndDepartureList);
 			return ListResult.fromList(queryStartMillis, sortedArrivalAndDepartureList);
 		});
 	}
@@ -113,7 +153,6 @@ public final class ArrivalAndDepartureController {
 								gtfsData.getServiceIdsOnDate(localDate)
 						);
 					}
-
 				}
 			}
 		});

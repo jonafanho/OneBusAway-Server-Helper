@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 public final class GtfsDao extends GtfsRelationalDaoImpl {
 
 	private Map<String, StopExtension> stopExtensions;
+	private Map<Trip, StopLocation> lastStopLocationForTrip;
 
 	private static final double SMALL_VALUE = 1E-32;
 
@@ -19,9 +20,16 @@ public final class GtfsDao extends GtfsRelationalDaoImpl {
 	public void clearAllCaches() {
 		super.clearAllCaches();
 		stopExtensions.clear();
+		lastStopLocationForTrip.clear();
 		stopExtensions = null;
+		lastStopLocationForTrip = null;
 	}
 
+	/**
+	 * Get a list of all {@link StopExtension} objects. They include a calculated stop direction and a list of sorted distinct route names.
+	 *
+	 * @return a list of {@link StopExtension} objects in no particular order
+	 */
 	public Collection<StopExtension> getAllStopExtensions() {
 		if (stopExtensions == null) {
 			stopExtensions = getAllStops()
@@ -32,6 +40,7 @@ public final class GtfsDao extends GtfsRelationalDaoImpl {
 
 						stopTimes.stream()
 								.map(stopTime -> {
+									// Get the shape ID and the stop IDs before and after
 									final Trip trip = stopTime.getTrip();
 									final int currentStopSequence = stopTime.getStopSequence();
 									AgencyAndId stopId1 = null;
@@ -50,9 +59,11 @@ public final class GtfsDao extends GtfsRelationalDaoImpl {
 								.distinct()
 								.forEach(tripDetails -> {
 									if (tripDetails.shapeId != null) {
+										// If the shape ID is not null, get the shape
 										final List<ShapePoint> shapePoints = getShapePointsForShapeId(tripDetails.shapeId);
 
 										if (shapePoints != null && shapePoints.size() >= 2) {
+											// Find the closest point on the shape to the current stop
 											int closestIndex = -1;
 											double closestDistance = Double.MAX_VALUE;
 
@@ -65,6 +76,7 @@ public final class GtfsDao extends GtfsRelationalDaoImpl {
 												}
 											}
 
+											// Try to get the point before and after the closest point
 											if (closestIndex >= 0) {
 												final ShapePoint closestShapePoint = Utilities.getElement(shapePoints, closestIndex);
 												ShapePoint shapePoint1 = null;
@@ -85,6 +97,7 @@ public final class GtfsDao extends GtfsRelationalDaoImpl {
 											}
 										}
 									} else {
+										// If the shape ID is null, use the previous and next stops
 										final Stop stop1 = tripDetails.stopId1 == null ? null : getStopForId(tripDetails.stopId1);
 										final Stop stop2 = tripDetails.stopId2 == null ? null : getStopForId(tripDetails.stopId2);
 										if (stop1 != null && stop2 != null) {
@@ -103,6 +116,7 @@ public final class GtfsDao extends GtfsRelationalDaoImpl {
 								stopTimes.stream()
 										.map(stopTime -> stopTime.getTrip().getRoute())
 										.distinct()
+										// Get the list of sorted distinct route names
 										.sorted(Comparator.comparing((Route route) -> route.isSortOrderSet() ? route.getSortOrder() : Integer.MAX_VALUE)
 												.thenComparingInt((Route route) -> {
 													final String routeNumber = getRouteName(route).replaceAll("\\D+", "");
@@ -119,6 +133,28 @@ public final class GtfsDao extends GtfsRelationalDaoImpl {
 		}
 
 		return stopExtensions.values();
+	}
+
+	/**
+	 * Gets the last {@link StopLocation} for a given {@link Trip}. Useful for generating a headsign if none was provided.
+	 *
+	 * @param trip the given trip
+	 * @return the last stop for the trip
+	 */
+	@Nullable
+	public StopLocation getLastStopLocationForTrip(Trip trip) {
+		if (lastStopLocationForTrip == null) {
+			lastStopLocationForTrip = new HashMap<>();
+		}
+
+		return lastStopLocationForTrip.computeIfAbsent(trip, key -> {
+			final List<StopTime> stopTimes = getStopTimesForTrip(trip);
+			if (stopTimes == null || stopTimes.isEmpty()) {
+				return null;
+			} else {
+				return stopTimes.get(stopTimes.size() - 1).getStop();
+			}
+		});
 	}
 
 	private static void addToStopDirectionVector(double targetLat, double targetLon, double lat1, double lon1, double lat2, double lon2, Vector2d directionVector) {

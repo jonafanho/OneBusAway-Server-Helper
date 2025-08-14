@@ -37,7 +37,7 @@ public final class GtfsService {
 
 	public GtfsService(@Value("${sources.location}") String sourceLocation, WebClient webClient) throws IOException {
 		log.info("Starting setup");
-		gtfsDataList = Mono.fromCallable(() -> new ObjectMapper().readValue(new File(sourceLocation), GtfsSource[].class)).subscribeOn(Schedulers.boundedElastic())
+		final List<GtfsData> gtfsDataList = Mono.fromCallable(() -> new ObjectMapper().readValue(new File(sourceLocation), GtfsSource[].class)).subscribeOn(Schedulers.boundedElastic())
 				.flatMapMany(Flux::fromArray)
 				.flatMap(gtfsSource -> setupSource(gtfsSource, webClient).map(gtfsDao -> {
 					final GtfsSource.Realtime realtime = gtfsSource.realtime();
@@ -45,6 +45,7 @@ public final class GtfsService {
 				}))
 				.collectList()
 				.block();
+		this.gtfsDataList = gtfsDataList == null ? List.of() : gtfsDataList;
 		log.info("Finished setup");
 	}
 
