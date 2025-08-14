@@ -5,7 +5,7 @@ import {HttpClient} from "@angular/common/http";
 import {url} from "../../utility/settings";
 import {createIcon} from "../../utility/stopIcon";
 import {StopExtension} from "../../data/stopExtension";
-import {ArrivalsAndDeparturesService} from "../../service/arrivals-and-departures.service";
+import {ArrivalsService} from "../../service/arrivals.service";
 
 @Component({
 	selector: "app-map",
@@ -18,7 +18,7 @@ export class MapComponent implements AfterViewInit {
 	private markerGroup?: Leaflet.LayerGroup;
 	private timeoutId = 0;
 
-	constructor(private readonly arrivalsAndDeparturesService: ArrivalsAndDeparturesService, private readonly httpClient: HttpClient) {
+	constructor(private readonly arrivalsService: ArrivalsService, private readonly httpClient: HttpClient) {
 	}
 
 	ngAfterViewInit() {
@@ -59,7 +59,7 @@ export class MapComponent implements AfterViewInit {
 			const center = latLngBounds.getCenter();
 			const northEast = latLngBounds.getNorthEast();
 			const southWest = latLngBounds.getSouthWest();
-			this.httpClient.get<{ data: { list: StopExtension[] } }>(`${url}/api/stops-for-location?lat=${center.lat}&lon=${center.lng}&latSpan=${northEast.lat - southWest.lat}&lonSpan=${northEast.lng - southWest.lng}`).subscribe(({data}) => {
+			this.httpClient.get<{ data: { list: StopExtension[] } }>(`${url}/api/stops-for-location?lat=${center.lat}&lon=${center.lng}&latSpan=${northEast.lat - southWest.lat}&lonSpan=${northEast.lng - southWest.lng}&maxCount=128`).subscribe(({data}) => {
 				if (this.markerGroup) {
 					this.markerGroup.clearLayers();
 					data.list.forEach(stopExtension => {
@@ -72,7 +72,7 @@ export class MapComponent implements AfterViewInit {
 						`, {closeButton: false});
 						marker.on("mouseover", () => marker.openPopup());
 						marker.on("mouseout", () => marker.closePopup());
-						marker.on("click", () => this.arrivalsAndDeparturesService.stopClicked.emit(stopExtension));
+						marker.on("click", () => this.arrivalsService.stopClicked.emit(stopExtension));
 						this.markerGroup?.addLayer(marker);
 					});
 				}

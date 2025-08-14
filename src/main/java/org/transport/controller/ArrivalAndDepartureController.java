@@ -1,9 +1,7 @@
 package org.transport.controller;
 
 import jakarta.annotation.Nullable;
-import org.onebusaway.gtfs.impl.GtfsDataServiceImpl;
 import org.onebusaway.gtfs.model.*;
-import org.onebusaway.gtfs.model.calendar.ServiceDate;
 import org.springframework.web.bind.annotation.*;
 import org.transport.entity.GtfsData;
 import org.transport.response.ArrivalAndDeparture;
@@ -45,16 +43,16 @@ public final class ArrivalAndDepartureController {
 		final Map<String, List<Integer>> stopSequenceListCache = new HashMap<>();
 		final List<Mono<ArrivalAndDeparture>> arrivalAndDepartureMonoList = new ArrayList<>();
 
-		iterateByStopId(stopId, queryStartMillis, queryEndMillis, (gtfsData, stop, offsetMillis, validServiceIds) -> gtfsData.gtfsDao().getStopTimesForStop(stop).forEach(stopTime -> {
+		iterateByStopId(stopId, queryStartMillis, queryEndMillis, (gtfsData, stop, offsetMillis, validServiceIds) -> gtfsData.gtfsDao.getStopTimesForStop(stop).forEach(stopTime -> {
 			if (stopTime.isArrivalTimeSet() && stopTime.isDepartureTimeSet() && validServiceIds.contains(stopTime.getTrip().getServiceId())) {
 				final Trip trip = stopTime.getTrip();
-				final List<Integer> stopSequences = stopSequenceListCache.computeIfAbsent(trip.getId().toString(), key -> gtfsData.gtfsDao().getStopTimesForTrip(trip).stream().map(StopTime::getStopSequence).toList());
+				final List<Integer> stopSequences = stopSequenceListCache.computeIfAbsent(trip.getId().toString(), key -> gtfsData.gtfsDao.getStopTimesForTrip(trip).stream().map(StopTime::getStopSequence).toList());
 				final boolean isTerminating = stopSequences.indexOf(stopTime.getStopSequence()) == stopSequences.size() - 1;
 
 				if (!isTerminating || showTerminating) {
 					final Route route = trip.getRoute();
 
-					arrivalAndDepartureMonoList.add(gtfsData.realtimeData().fetch(stopTime).mapNotNull(optionalRealtimeResponse -> {
+					arrivalAndDepartureMonoList.add(gtfsData.realtimeData.fetch(stopTime).mapNotNull(optionalRealtimeResponse -> {
 						final RealtimeResponse realtimeResponse = optionalRealtimeResponse.orElse(null);
 						final int deviation = realtimeResponse == null ? 0 : realtimeResponse.deviation() * Constants.MILLIS_PER_SECOND;
 						final long arrivalMillis = (long) stopTime.getArrivalTime() * Constants.MILLIS_PER_SECOND + offsetMillis + deviation;
@@ -97,24 +95,22 @@ public final class ArrivalAndDepartureController {
 
 	private void iterateByStopId(String stopId, long queryStartMillis, long queryEndMillis, IterateCallback callback) {
 		gtfsService.gtfsDataList.forEach(gtfsData -> {
-			final Stop stop = gtfsData.gtfsDao().getStopForId(AgencyAndId.convertFromString(stopId));
+			final Stop stop = gtfsData.gtfsDao.getStopForId(AgencyAndId.convertFromString(stopId));
 
 			if (stop != null) {
-				final Agency agency = gtfsData.gtfsDao().getAgencyForId(stop.getId().getAgencyId());
+				final Agency agency = gtfsData.gtfsDao.getAgencyForId(stop.getId().getAgencyId());
 
 				if (agency != null) {
-					final GtfsDataServiceImpl gtfsDataService = new GtfsDataServiceImpl();
-					gtfsDataService.setGtfsDao(gtfsData.gtfsDao());
 					final ZoneId zoneId = ZoneId.of(agency.getTimezone());
 					final LocalDate startDate = Instant.ofEpochMilli(queryStartMillis - Constants.MILLIS_PER_DAY).atZone(zoneId).toLocalDate();
 					final LocalDate endDate = Instant.ofEpochMilli(queryEndMillis + Constants.MILLIS_PER_DAY).atZone(zoneId).toLocalDate();
 
-					for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+					for (LocalDate localDate = startDate; !localDate.isAfter(endDate); localDate = localDate.plusDays(1)) {
 						callback.accept(
 								gtfsData,
 								stop,
-								date.atStartOfDay(zoneId).toInstant().toEpochMilli(),
-								gtfsDataService.getServiceIdsOnDate(new ServiceDate(date.getYear(), date.getMonthValue(), date.getDayOfMonth()))
+								localDate.atStartOfDay(zoneId).toInstant().toEpochMilli(),
+								gtfsData.getServiceIdsOnDate(localDate)
 						);
 					}
 
@@ -129,7 +125,7 @@ public final class ArrivalAndDepartureController {
 
 	@Nullable
 	private static String cleanName(@Nullable String name, @Nullable String routeShortName) {
-		return routeShortName == null ? name : name == null ? null : (name.startsWith(routeShortName) ? name.substring(routeShortName.length()) : name).trim();
+		return routeShortName == null ? name : name == null ? null : (name.startsWith(routeShortName + " ") ? name.substring(routeShortName.length()) : name).trim();
 	}
 
 	@FunctionalInterface

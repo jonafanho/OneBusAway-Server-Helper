@@ -11,6 +11,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.transport.response.RealtimeResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
 import java.time.Duration;
 import java.util.List;
@@ -63,10 +64,16 @@ public final class RealtimeData {
 
 	private Mono<List<RealtimeResponse>> fetch() {
 		if (cachedMono == null) {
-			cachedMono = Flux.fromIterable(sources.stream().map(source -> webClient.get()
+			cachedMono = sources.isEmpty() ? Mono.just(List.of()) : Flux.fromIterable(sources.stream().map(source -> webClient.get()
 					.uri(source)
 					.retrieve()
 					.bodyToMono(String.class)
+					.retryWhen(Retry.backoff(3, Duration.ofSeconds(FETCH_COOLDOWN)))
+					.onErrorResume(e -> {
+						log.error("Error fetching from [{}]", source, e);
+						cachedMono = null;
+						return Mono.empty();
+					})
 					.map(response -> {
 						log.info("Received realtime response from [{}]", source);
 						try {

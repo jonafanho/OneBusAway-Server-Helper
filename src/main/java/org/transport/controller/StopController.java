@@ -30,7 +30,7 @@ public final class StopController {
 
 		final List<StopExtension> stopExtensions = new ArrayList<>();
 		for (final GtfsData gtfsData : gtfsService.gtfsDataList) {
-			for (final StopExtension stopExtension : gtfsData.gtfsDao().getAllStopExtensions()) {
+			for (final StopExtension stopExtension : gtfsData.gtfsDao.getAllStopExtensions()) {
 				final Stop stop = stopExtension.stop();
 				if (stop.isLatSet() && stop.isLonSet() && isBetween(stop.getLat(), lat - halfLatSpan, lat + halfLatSpan) && isBetween(stop.getLon(), lon - halfLonSpan, lon + halfLonSpan)) {
 					stopExtensions.add(stopExtension);

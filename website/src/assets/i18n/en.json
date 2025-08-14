@@ -1,1 +1,12 @@
-{}
+{
+	"field.routes": "Routes",
+	"field.stop-id": "Stop ID",
+	"status.scheduled": "Scheduled",
+	"status.on-time": "On time",
+	"status.early": "{{minutes}} min early",
+	"status.delay": "{{minutes}} min delay",
+	"arrivals.no-arrivals": "No arrivals for the next {{hours}} hours.",
+	"button.show-more-arrivals": "Show More Arrivals",
+	"menu.light-theme": "Light Theme",
+	"menu.dark-theme": "Dark Theme"
+}

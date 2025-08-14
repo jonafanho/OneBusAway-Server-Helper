@@ -30,7 +30,7 @@ public final class AgencyController {
 	public DataResponse agencies() {
 		final long requestStartMillis = System.currentTimeMillis();
 		final List<Agency> agencies = new ArrayList<>();
-		gtfsService.gtfsDataList.forEach(gtfsData -> agencies.addAll(gtfsData.gtfsDao().getAllAgencies()));
+		gtfsService.gtfsDataList.forEach(gtfsData -> agencies.addAll(gtfsData.gtfsDao.getAllAgencies()));
 		return ListResult.fromList(requestStartMillis, agencies);
 	}
 
@@ -42,7 +42,7 @@ public final class AgencyController {
 		int count = 0;
 
 		for (final GtfsData gtfsData : gtfsService.gtfsDataList) {
-			for (final Stop stop : gtfsData.gtfsDao().getAllStops()) {
+			for (final Stop stop : gtfsData.gtfsDao.getAllStops()) {
 				if (stop.isLatSet() && stop.isLonSet()) {
 					latSum += stop.getLat();
 					lonSum += stop.getLon();
@@ -55,6 +55,5 @@ public final class AgencyController {
 	}
 
 	private record LatLon(double lat, double lon) {
-
 	}
 }

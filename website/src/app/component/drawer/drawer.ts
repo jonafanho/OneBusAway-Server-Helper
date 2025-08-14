@@ -1,13 +1,19 @@
 import {Component} from "@angular/core";
 import {DrawerModule} from "primeng/drawer";
-import {ArrivalsAndDeparturesService} from "../../service/arrivals-and-departures.service";
+import {ArrivalsService} from "../../service/arrivals.service";
 import {DividerModule} from "primeng/divider";
+import {TranslocoDirective} from "@jsverse/transloco";
+import {ProgressBarModule} from "primeng/progressbar";
+import {ButtonModule} from "primeng/button";
 
 @Component({
 	selector: "app-drawer",
 	imports: [
 		DrawerModule,
 		DividerModule,
+		ProgressBarModule,
+		ButtonModule,
+		TranslocoDirective,
 	],
 	templateUrl: "./drawer.html",
 	styleUrl: "./drawer.scss",
@@ -15,27 +21,43 @@ import {DividerModule} from "primeng/divider";
 export class DrawerComponent {
 	protected visible = false;
 
-	constructor(private readonly arrivalsAndDeparturesService: ArrivalsAndDeparturesService) {
-		arrivalsAndDeparturesService.stopClicked.subscribe(stopExtension => this.visible = !!stopExtension);
+	constructor(private readonly arrivalsService: ArrivalsService) {
+		arrivalsService.stopClicked.subscribe(stopExtension => this.visible = !!stopExtension);
 	}
 
 	closeDrawer() {
-		this.arrivalsAndDeparturesService.stopClicked.emit();
+		this.arrivalsService.stopClicked.emit();
 	}
 
 	getName() {
-		return this.arrivalsAndDeparturesService.getName();
+		return this.arrivalsService.getName();
 	}
 
 	getRouteList() {
-		return this.arrivalsAndDeparturesService.getRoutes().join(", ");
+		return this.arrivalsService.getRoutes().join(", ");
 	}
 
 	getId() {
-		return this.arrivalsAndDeparturesService.getId();
+		return this.arrivalsService.getId();
 	}
 
-	getFormattedDepartures() {
-		return this.arrivalsAndDeparturesService.getFormattedArrivalsAndDepartures();
+	getArrivals() {
+		return this.arrivalsService.getArrivals();
+	}
+
+	getLoading() {
+		return this.arrivalsService.getLoading();
+	}
+
+	getAddMinutesAfterLoading() {
+		return this.arrivalsService.getAddMinutesAfterLoading();
+	}
+
+	addMinutesAfter() {
+		this.arrivalsService.addMinutesAfter();
+	}
+
+	getHoursAfter() {
+		return Math.floor(this.arrivalsService.getMinutesAfter() / 60);
 	}
 }

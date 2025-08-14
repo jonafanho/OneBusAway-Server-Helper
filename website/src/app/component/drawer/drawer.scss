@@ -1,30 +1,64 @@
-.departures {
+.progress-padding {
+	height: 1rem;
+}
+
+.arrivals {
 	overflow-wrap: break-word;
 }
 
-.departure-fixed-width-large {
-	max-width: 5rem;
-	min-width: 5rem;
-}
-
-.departure-fixed-width-small {
+.arrival-fixed-width-small {
 	max-width: 4rem;
 	min-width: 4rem;
 }
 
-.departure-heading {
+.arrival-fixed-width-medium {
+	max-width: 6rem;
+	min-width: 6rem;
+}
+
+.arrival-fixed-width-large {
+	max-width: 8rem;
+	min-width: 8rem;
+}
+
+.arrival-heading {
 	font-size: 2rem;
 	text-align: center;
 }
 
-.departure-small {
+.arrival-trailing {
+	font-size: 1.5rem;
+	text-align: right;
+}
+
+.arrival-small {
 	font-size: 0.8rem;
 }
 
-.departure-bold {
+.bold-text {
 	font-weight: bold;
 }
 
-.departure-align-right {
-	text-align: right;
+.deviation {
+	color: white;
+	border-radius: 0.3rem;
+	margin: 0.2rem 0;
+	padding: 0.3rem 0.5rem;
+	text-align: center;
+}
+
+.deviation.scheduled {
+	background-color: darkgray;
+}
+
+.deviation.on-time {
+	background-color: var(--p-primary-color);
+}
+
+.deviation.early {
+	background-color: #A35650;
+}
+
+.deviation.delay {
+	background-color: #4F4BA9;
 }
