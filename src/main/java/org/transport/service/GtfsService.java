@@ -2,6 +2,7 @@ package org.transport.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import net.lingala.zip4j.ZipFile;
 import org.onebusaway.gtfs.model.Stop;
 import org.onebusaway.gtfs.serialization.GtfsReader;
 import org.onebusaway.gtfs_merge.GtfsMergeContext;
@@ -25,7 +26,6 @@ import reactor.core.scheduler.Schedulers;
 import reactor.util.retry.Retry;
 
 import java.io.File;
-import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 
@@ -35,9 +35,10 @@ public final class GtfsService {
 
 	public final List<GtfsData> gtfsDataList;
 
-	public GtfsService(@Value("${sources.location}") String sourceLocation, WebClient webClient) throws IOException {
-		log.info("Starting setup");
-		final List<GtfsData> gtfsDataList = Mono.fromCallable(() -> new ObjectMapper().readValue(new File(sourceLocation), GtfsSource[].class)).subscribeOn(Schedulers.boundedElastic())
+	public GtfsService(@Value("${sources.location}") String sourceLocation, WebClient webClient) {
+		final File sourceFile = new File(sourceLocation);
+		log.info("Starting setup using file [{}]", sourceFile.getAbsoluteFile());
+		final List<GtfsData> gtfsDataList = Mono.fromCallable(() -> new ObjectMapper().readValue(sourceFile, GtfsSource[].class)).subscribeOn(Schedulers.boundedElastic())
 				.flatMapMany(Flux::fromArray)
 				.flatMap(gtfsSource -> setupSource(gtfsSource, webClient).map(gtfsDao -> {
 					final GtfsSource.Realtime realtime = gtfsSource.realtime();
@@ -89,8 +90,10 @@ public final class GtfsService {
 	}
 
 	private static Mono<File> getFileFromSource(String source, WebClient webClient) {
+		final Mono<File> fileMono;
+
 		if (source.startsWith("https://")) {
-			return createTempZipFile("gtfs_source_").flatMap(sourceFile -> webClient.get()
+			fileMono = createTempZipFile("gtfs_source_").flatMap(sourceFile -> webClient.get()
 					.uri(source)
 					.retrieve()
 					.bodyToFlux(DataBuffer.class)
@@ -101,8 +104,24 @@ public final class GtfsService {
 				return Mono.empty();
 			});
 		} else {
-			return Mono.just(new File(source));
+			fileMono = Mono.just(new File(source));
 		}
+
+		return fileMono.publishOn(Schedulers.boundedElastic()).flatMap(file -> {
+			try (final ZipFile zipFile = new ZipFile(file)) {
+				for (final String optionalFileName : GtfsDao.OPTIONAL_FILE_NAMES) {
+					try {
+						zipFile.removeFile(optionalFileName);
+						log.info("Removed [{}] from [{}]", optionalFileName, source);
+					} catch (Exception ignored) {
+					}
+				}
+				return Mono.just(file);
+			} catch (Exception e) {
+				log.error("Failed to remove optional files from ZIP", e);
+				return Mono.empty();
+			}
+		});
 	}
 
 	private static Mono<File> createTempZipFile(String prefix) {
