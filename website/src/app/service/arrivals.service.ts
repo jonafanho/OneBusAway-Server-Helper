@@ -94,7 +94,7 @@ export class ArrivalsService {
 						length?: number,
 					}[]
 				}
-			}>(`${url}/api/arrivals-and-departures-for-stop?stopId=${stopId}&minutesAfter=${this.minutesAfter}`).subscribe({
+			}>(`${url}api/arrivals-and-departures-for-stop?stopId=${stopId}&minutesAfter=${this.minutesAfter}`).subscribe({
 				next: ({data}) => {
 					if (this.getId() === stopId) {
 						const currentMillis = Date.now();

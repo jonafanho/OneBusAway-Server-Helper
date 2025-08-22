@@ -33,7 +33,7 @@ export class MapComponent implements AfterViewInit {
 	}
 
 	private getApproximateLocation() {
-		this.httpClient.get<{ data: { lat: number, lon: number } }>(`${url}/api/centerPoint`).subscribe({
+		this.httpClient.get<{ data: { lat: number, lon: number } }>(`${url}api/centerPoint`).subscribe({
 			next: ({data}) => this.initMap(data.lat, data.lon, 10),
 			error: () => this.initMap(0, 0, 3),
 		});
@@ -59,7 +59,7 @@ export class MapComponent implements AfterViewInit {
 			const center = latLngBounds.getCenter();
 			const northEast = latLngBounds.getNorthEast();
 			const southWest = latLngBounds.getSouthWest();
-			this.httpClient.get<{ data: { list: StopExtension[] } }>(`${url}/api/stops-for-location?lat=${center.lat}&lon=${center.lng}&latSpan=${northEast.lat - southWest.lat}&lonSpan=${northEast.lng - southWest.lng}&maxCount=128`).subscribe(({data}) => {
+			this.httpClient.get<{ data: { list: StopExtension[] } }>(`${url}api/stops-for-location?lat=${center.lat}&lon=${center.lng}&latSpan=${northEast.lat - southWest.lat}&lonSpan=${northEast.lng - southWest.lng}&maxCount=128`).subscribe(({data}) => {
 				if (this.markerGroup) {
 					this.markerGroup.clearLayers();
 					data.list.forEach(stopExtension => {
